@@ -17,41 +17,47 @@ body {
   height: 55vh;
 }
 
-/* 🎛 SIDEBAR */
+/* SIDEBAR */
 #sidebar {
   width: 200px;
   background: #151824;
   padding: 10px;
 }
 
-/* 🎧 TRACK CONTAINER (VERTICAL SCROLL CORE) */
-#trackContainer {
-  flex: 1;
-  overflow-y: auto;   /* 🔥 THIS IS THE IMPORTANT PART */
-  background: #11131a;
-  height: 100%;
+#sidebar button {
+  width: 100%;
+  margin-bottom: 6px;
+  background: #2a2d36;
+  color: white;
+  border: none;
+  padding: 6px;
 }
 
-/* TIMELINE STACK (VERTICAL LAYERS) */
+/* TRACK VIEW (VERTICAL SCROLL) */
+#timelineWrap {
+  flex: 1;
+  overflow-y: auto;
+  background: #11131a;
+}
+
 #timeline {
   display: flex;
-  flex-direction: column; /* 🔥 STACK TRACKS VERTICALLY */
+  flex-direction: column;
 }
 
-/* TRACK ROWS */
+/* TRACK ROW */
 .track {
   height: 90px;
   border-bottom: 1px solid #333;
   position: relative;
-  min-height: 90px;
 }
 
 .trackLabel {
   position: absolute;
-  left: 5px;
-  top: 5px;
-  font-size: 12px;
-  opacity: 0.7;
+  left: 6px;
+  top: 6px;
+  font-size: 11px;
+  opacity: 0.6;
 }
 
 /* NOTES */
@@ -62,7 +68,7 @@ body {
   border-radius: 4px;
 }
 
-/* 🎹 PIANO ROLL */
+/* PIANO ROLL SCROLL */
 #pianoScroll {
   overflow-x: auto;
   background: #0f1117;
