@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  background: #0e0f14;
+  background: #0b0c10;
   color: white;
   font-family: Arial;
 }
@@ -9,97 +9,43 @@ body {
   display: flex;
   gap: 10px;
   padding: 10px;
-  background: #1b1c25;
+  background: #161826;
 }
 
-button {
-  background: #2b2d3a;
-  border: 0;
-  color: white;
-  padding: 6px 10px;
-}
-
-#app {
+#workspace {
   display: flex;
-  height: 55vh;
-}
-
-/* TIMELINE */
-#timelineWrap {
-  flex: 3;
-  position: relative;
-  overflow-x: auto;
-  background: #151622;
+  height: 60vh;
 }
 
 #timeline {
-  width: 4000px;
-  height: 300px;
+  flex: 3;
+  position: relative;
+  background: #12131a;
+  overflow-x: scroll;
+}
+
+.track {
+  height: 90px;
+  border-bottom: 1px solid #222;
   position: relative;
 }
 
 .clip {
   position: absolute;
-  height: 60px;
-  background: #4a7dff;
+  height: 70px;
+  background: #3b82f6;
   border-radius: 6px;
   overflow: hidden;
+  cursor: grab;
 }
 
-/* PLAYHEAD */
-#playhead {
-  position: absolute;
-  width: 2px;
-  height: 300px;
-  background: red;
-  left: 0;
-}
-
-/* MIXER */
 #mixer {
   flex: 1;
-  background: #1a1b26;
+  background: #181a23;
   padding: 10px;
 }
 
-.channel {
-  margin: 10px 0;
-}
-
-/* BOTTOM */
-#bottom {
-  display: flex;
-  height: 35vh;
-}
-
-#piano {
-  flex: 1;
-  background: #11121a;
-  display: grid;
-  grid-template-columns: repeat(16, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-}
-
-#piano div {
-  border: 1px solid #222;
-}
-
-#piano .on {
-  background: #00ff99;
-}
-
-#sequencer {
-  flex: 1;
-  background: #141522;
-  display: grid;
-  grid-template-columns: repeat(16, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-}
-
-#sequencer div {
-  border: 1px solid #333;
-}
-
-#sequencer .active {
-  background: orange;
+#pianoRoll {
+  height: 40vh;
+  background: #0f1118;
 }

@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>DAW v2</title>
+  <title>DAW MAX v4</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -11,32 +10,20 @@
   <button onclick="addTrack()">+ Track</button>
   <button onclick="play()">▶ Play</button>
   <button onclick="stop()">■ Stop</button>
-  <button onclick="save()">💾 Save</button>
-  <button onclick="load()">📂 Load</button>
-  <input type="file" id="file" accept="audio/*"/>
+  <button onclick="toggleLoop()">🔁 Loop</button>
+  <button onclick="exportWAV()">📤 Export</button>
+  <input type="file" id="file"/>
 </div>
 
-<div id="app">
+<div id="workspace">
 
-  <!-- TIMELINE -->
-  <div id="timelineWrap">
-    <div id="timeline"></div>
-    <div id="playhead"></div>
-  </div>
+  <div id="timeline"></div>
 
-  <!-- MIXER -->
-  <div id="mixer">
-    <h3>Mixer</h3>
-    <div id="channels"></div>
-  </div>
+  <div id="mixer"></div>
 
 </div>
 
-<!-- PIANO + SEQUENCER -->
-<div id="bottom">
-  <div id="piano"></div>
-  <div id="sequencer"></div>
-</div>
+<div id="pianoRoll"></div>
 
 <script src="script.js"></script>
 </body>

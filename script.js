@@ -1,163 +1,222 @@
-const timeline = document.getElementById("timeline");
-const playhead = document.getElementById("playhead");
-const mixer = document.getElementById("channels");
+const ctx = new AudioContext();
 
-let ctx = new AudioContext();
 let tracks = [];
-let playing = false;
-let position = 0;
+let isPlaying = false;
+let startTime = 0;
+let loop = false;
+let loopStart = 0;
+let loopEnd = 8;
 
-// ---------------- TRACK ----------------
+// ---------------- MASTER ----------------
+const masterGain = ctx.createGain();
+masterGain.connect(ctx.destination);
+masterGain.gain.value = 0.9;
+
+// ---------------- TRACK SYSTEM ----------------
 function addTrack() {
+  const gain = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
+  const delay = ctx.createDelay(1.0);
+
+  filter.type = "lowpass";
+
+  gain.connect(filter);
+  filter.connect(delay);
+  delay.connect(masterGain);
+
   const track = {
     clips: [],
-    gain: ctx.createGain(),
-    filter: ctx.createBiquadFilter(),
-    delay: ctx.createDelay()
+    notes: [],
+    gain,
+    filter,
+    delay
   };
-
-  track.filter.type = "lowpass";
-  track.filter.frequency.value = 2000;
-
-  track.gain.connect(track.filter);
-  track.filter.connect(track.delay);
-  track.delay.connect(ctx.destination);
 
   tracks.push(track);
   renderMixer();
+  renderTimeline();
 }
 
-// ---------------- CLIPS + WAVES ----------------
-function addClip(buffer, x = 100, trackIndex = 0) {
-  const clip = {
+// ---------------- AUDIO CLIPS ----------------
+function addClip(buffer, trackIndex = 0, start = 0) {
+  tracks[trackIndex].clips.push({
     buffer,
-    x,
-    width: 200
-  };
+    start
+  });
 
-  tracks[trackIndex].clips.push(clip);
-  drawClip(trackIndex, clip);
+  renderTimeline();
 }
 
-function drawClip(ti, clip) {
-  const el = document.createElement("div");
-  el.className = "clip";
-  el.style.left = clip.x + "px";
-  el.style.width = clip.width + "px";
-  el.style.top = ti * 70 + "px";
-
-  // fake waveform
-  const c = document.createElement("canvas");
-  c.width = clip.width;
-  c.height = 60;
-  const g = c.getContext("2d");
-
-  g.strokeStyle = "#fff";
-  for (let i = 0; i < clip.width; i += 4) {
-    g.beginPath();
-    g.moveTo(i, 30);
-    g.lineTo(i, 30 + Math.sin(i * 0.1) * 20);
-    g.stroke();
-  }
-
-  el.appendChild(c);
-  timeline.appendChild(el);
-}
-
-// ---------------- PLAYBACK ----------------
+// ---------------- PLAY ENGINE (PRO TIMING) ----------------
 function play() {
-  playing = true;
-  position = 0;
-  loop();
+  if (isPlaying) return;
+  isPlaying = true;
+
+  startTime = ctx.currentTime + 0.1;
+
+  tracks.forEach(track => {
+
+    // AUDIO CLIPS
+    track.clips.forEach(clip => {
+      const src = ctx.createBufferSource();
+      src.buffer = clip.buffer;
+      src.connect(track.gain);
+
+      src.start(startTime + clip.start);
+    });
+
+    // MIDI NOTES
+    track.notes.forEach(n => {
+      scheduleNote(n, track);
+    });
+  });
 }
 
+// ---------------- STOP ----------------
 function stop() {
-  playing = false;
-  position = 0;
-  playhead.style.left = "0px";
+  isPlaying = false;
 }
 
-function loop() {
-  if (!playing) return;
-
-  position += 2;
-  playhead.style.left = position + "px";
-
-  requestAnimationFrame(loop);
-}
-
-// ---------------- AUDIO IMPORT ----------------
-document.getElementById("file").onchange = async (e) => {
-  const file = e.target.files[0];
-  const arr = await file.arrayBuffer();
-  const buf = await ctx.decodeAudioData(arr);
-  addClip(buf);
-};
-
-// ---------------- SYNTH (PIANO) ----------------
-const piano = document.getElementById("piano");
-
-for (let i = 0; i < 128; i++) {
-  const key = document.createElement("div");
-  key.onclick = () => playNote(i);
-  piano.appendChild(key);
-}
-
-function playNote(note) {
+// ---------------- MIDI SYNTH ----------------
+function scheduleNote(note, track) {
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
 
-  osc.frequency.value = 220 * Math.pow(2, note / 12);
+  osc.frequency.value = 220 * Math.pow(2, note.pitch / 12);
   osc.type = "sine";
 
   osc.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(track.gain);
 
-  gain.gain.setValueAtTime(0.2, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+  const t = startTime + note.time;
 
-  osc.start();
-  osc.stop(ctx.currentTime + 0.3);
+  gain.gain.setValueAtTime(0.2, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + note.duration);
+
+  osc.start(t);
+  osc.stop(t + note.duration);
 }
 
-// ---------------- STEP SEQUENCER ----------------
-const seq = document.getElementById("sequencer");
+// ---------------- IMPORT AUDIO ----------------
+document.getElementById("file").onchange = async (e) => {
+  const file = e.target.files[0];
+  const arr = await file.arrayBuffer();
+  const buffer = await ctx.decodeAudioData(arr);
 
-let steps = Array(128).fill(0);
+  if (!tracks[0]) addTrack();
+  addClip(buffer, 0, 0);
+};
 
-for (let i = 0; i < 128; i++) {
-  const cell = document.createElement("div");
-  cell.onclick = () => {
-    cell.classList.toggle("active");
-    steps[i] = steps[i] ? 0 : 1;
-  };
-  seq.appendChild(cell);
+// ---------------- TIMELINE ----------------
+function renderTimeline() {
+  const tl = document.getElementById("timeline");
+  tl.innerHTML = "";
+
+  tracks.forEach((t, i) => {
+    const row = document.createElement("div");
+    row.className = "track";
+
+    // CLIPS
+    t.clips.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "clip";
+
+      div.style.left = c.start * 120 + "px";
+      div.style.width = (c.buffer.duration * 120) + "px";
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 300;
+      canvas.height = 70;
+
+      drawWave(c.buffer, canvas);
+
+      div.appendChild(canvas);
+      row.appendChild(div);
+    });
+
+    tl.appendChild(row);
+  });
+}
+
+// ---------------- WAVEFORM ----------------
+function drawWave(buffer, canvas) {
+  const g = canvas.getContext("2d");
+  const data = buffer.getChannelData(0);
+
+  g.strokeStyle = "white";
+  g.beginPath();
+
+  let step = Math.floor(data.length / canvas.width);
+
+  for (let i = 0; i < canvas.width; i++) {
+    let v = data[i * step] || 0;
+    g.lineTo(i, (v + 1) * 35);
+  }
+
+  g.stroke();
 }
 
 // ---------------- MIXER ----------------
 function renderMixer() {
-  mixer.innerHTML = "";
+  const m = document.getElementById("mixer");
+  m.innerHTML = "";
+
   tracks.forEach((t, i) => {
     const div = document.createElement("div");
-    div.className = "channel";
 
     div.innerHTML = `
-      Track ${i+1}
+      Track ${i+1}<br>
       <input type="range" min="0" max="1" step="0.01"
-        onchange="tracks[${i}].gain.gain.value=this.value" />
+        onchange="tracks[${i}].gain.gain.value=this.value">
     `;
 
-    mixer.appendChild(div);
+    m.appendChild(div);
   });
 }
 
-// ---------------- SAVE / LOAD ----------------
-function save() {
-  const data = JSON.stringify(tracks.length);
-  localStorage.setItem("daw2", data);
-  alert("Saved (basic state)");
+// ---------------- LOOP ----------------
+function toggleLoop() {
+  loop = !loop;
 }
 
-function load() {
-  alert("Load system placeholder (expandable to full project restore)");
+// ---------------- PIANO ROLL DATA ----------------
+// (real note system, not UI toggles)
+function addNote(trackIndex, pitch, time, duration) {
+  tracks[trackIndex].notes.push({
+    pitch,
+    time,
+    duration
+  });
+}
+
+// ---------------- EXPORT (basic offline render) ----------------
+async function exportWAV() {
+  const offline = new OfflineAudioContext(2, 44100 * 30, 44100);
+
+  tracks.forEach(t => {
+    t.clips.forEach(c => {
+      const src = offline.createBufferSource();
+      src.buffer = c.buffer;
+      src.connect(offline.destination);
+      src.start(c.start);
+    });
+  });
+
+  const rendered = await offline.startRendering();
+
+  const wav = audioBufferToWav(rendered);
+  download(wav, "mix.wav");
+}
+
+// ---------------- WAV STUB ----------------
+function audioBufferToWav(buffer) {
+  const length = buffer.length * 2;
+  return new Blob([new ArrayBuffer(length)], { type: "audio/wav" });
+}
+
+function download(blob, name) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
 }
