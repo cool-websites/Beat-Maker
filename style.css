@@ -14,7 +14,7 @@ body {
 
 #workspace {
   display: flex;
-  height: 60vh;
+  height: 50vh;
 }
 
 #timeline {
@@ -36,7 +36,6 @@ body {
   background: #3b82f6;
   border-radius: 6px;
   overflow: hidden;
-  cursor: grab;
 }
 
 #mixer {
@@ -45,7 +44,19 @@ body {
   padding: 10px;
 }
 
-#pianoRoll {
-  height: 40vh;
-  background: #0f1118;
+#drumGrid, #pianoGrid {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 2px;
+  margin: 10px;
+}
+
+#drumGrid div, #pianoGrid div {
+  height: 25px;
+  background: #222;
+  cursor: pointer;
+}
+
+.active {
+  background: orange;
 }
