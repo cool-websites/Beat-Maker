@@ -1,57 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Web DAW Pro</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beat Maker DAW</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <div class="logo">🎧 Web DAW</div>
-
-  <div class="controls">
-    <button id="play">▶</button>
-    <button id="stop">■</button>
-    <button id="export">⬇ WAV</button>
-    <button id="save">💾 Save</button>
-    <button id="load">📂 Load</button>
-    <input type="file" id="fileInput" hidden>
-  </div>
-
-  <div>
-    BPM <input id="bpm" type="range" min="60" max="180" value="120">
-    <span id="bpmVal">120</span>
-  </div>
+<div id="topbar">
+  <button onclick="addClip()">+ Add Clip</button>
+  <button onclick="play()">▶ Play</button>
+  <button onclick="stop()">■ Stop</button>
+  <button onclick="saveProject()">💾 Save</button>
+  <button onclick="loadProject()">📂 Load</button>
+  <input type="file" id="audioImport" accept="audio/*"/>
 </div>
 
-<!-- MAIN -->
-<div class="main">
+<div id="app">
 
-  <div class="tracks" id="trackNames"></div>
-
-  <div class="timeline-container">
+  <!-- TRACK AREA -->
+  <div id="timeline-container">
     <div id="timeline"></div>
+    <div id="playhead"></div>
   </div>
 
-  <div class="mixer" id="mixer"></div>
-
-</div>
-
-<!-- BOTTOM -->
-<div class="bottom">
-
-  <div class="tabs">
-    <button onclick="showTab('rack')">Channel Rack</button>
-    <button onclick="showTab('piano')">Piano Roll</button>
+  <!-- PIANO ROLL -->
+  <div id="piano-roll">
+    <h3>Piano Roll (Grid View)</h3>
+    <div id="grid"></div>
   </div>
 
-  <div id="rack" class="tab active">
-    <div id="sequencer"></div>
-  </div>
-
-  <div id="pianoTab" class="tab">
-    <div id="piano"></div>
+  <!-- EFFECTS -->
+  <div id="effects">
+    <h3>Effects Rack</h3>
+    <label>Reverb <input type="range" min="0" max="1" step="0.01"/></label>
+    <label>Volume <input type="range" min="0" max="1" step="0.01"/></label>
   </div>
 
 </div>
