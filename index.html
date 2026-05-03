@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DAW PRO v10</title>
+  <title>DAW PRO v11</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,31 +16,27 @@
 
 <div id="app">
 
-  <!-- 🎛 FULL INSTRUMENT RACK -->
+  <!-- 🎛 INSTRUMENT SIDEBAR -->
   <div id="sidebar">
-    <h3>Instrument Rack</h3>
-
+    <h3>Instruments</h3>
     <button onclick="addInstrument('sine')">🎹 Synth</button>
     <button onclick="addInstrument('square')">📟 Square</button>
-    <button onclick="addInstrument('triangle')">🔺 Triangle</button>
+    <button onclick="addInstrument('triangle')">🔺 Soft</button>
     <button onclick="addInstrument('sawtooth')">🌊 Saw</button>
     <button onclick="addInstrument('piano')">🎼 Piano</button>
     <button onclick="addInstrument('bass')">🎸 Bass</button>
     <button onclick="addInstrument('drums')">🥁 Drums</button>
-    <button onclick="addInstrument('noise')">📡 Noise</button>
   </div>
 
-  <!-- TIMELINE -->
-  <div id="timelineWrap">
-    <div id="playhead"></div>
+  <!-- 🎧 VERTICAL TRACK VIEW (THIS IS THE KEY CHANGE) -->
+  <div id="trackContainer">
     <div id="timeline"></div>
   </div>
 
 </div>
 
-<!-- 🎹 PIANO ROLL + SCROLL BAR -->
-<h3>Piano Roll</h3>
-
+<!-- 🎹 PIANO ROLL -->
+<h3>Piano Roll (scroll to edit tracks)</h3>
 <div id="pianoScroll">
   <div id="piano"></div>
 </div>

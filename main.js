@@ -1,6 +1,6 @@
 const DAW = window.DAW;
 
-// 🎛 ADD INSTRUMENT TRACK
+// 🎛 add instrument = new track
 window.addInstrument = function(type) {
   DAW.addTrack(type);
 };
@@ -18,7 +18,6 @@ for (let y = 0; y < 8; y++) {
     cell.className = "cell";
 
     cell.onclick = () => {
-
       DAW.tracks[DAW.activeTrack].notes.push({
         pitch: y * 2,
         time: x * 0.25,
@@ -32,18 +31,23 @@ for (let y = 0; y < 8; y++) {
   }
 }
 
-// 🎧 TIMELINE
+// 🎧 VERTICAL TIMELINE RENDER
 function renderTimeline() {
   const tl = document.getElementById("timeline");
   tl.innerHTML = "";
 
-  DAW.tracks.forEach(track => {
+  DAW.tracks.forEach((track, i) => {
 
     const row = document.createElement("div");
     row.className = "track";
 
-    track.notes.forEach(n => {
+    const label = document.createElement("div");
+    label.className = "trackLabel";
+    label.innerText = track.type;
 
+    row.appendChild(label);
+
+    track.notes.forEach(n => {
       const el = document.createElement("div");
       el.className = "note";
 
@@ -58,13 +62,8 @@ function renderTimeline() {
   });
 }
 
-// 🎯 PLAYHEAD
-function updatePlayhead(step) {
-  document.getElementById("playhead").style.left = step * 40 + "px";
-}
-
-// 💾 EXPORT
-window.exportProject = function() {
+// EXPORT
+window.exportProject = function () {
   const blob = new Blob(
     [JSON.stringify(DAW.tracks, null, 2)],
     { type: "application/json" }
@@ -76,14 +75,13 @@ window.exportProject = function() {
   a.click();
 };
 
-// 📂 IMPORT
+// IMPORT
 document.getElementById("importFile").onchange = async (e) => {
   const file = e.target.files[0];
   const text = await file.text();
+
   DAW.tracks = JSON.parse(text);
   renderTimeline();
 };
 
-// expose
 window.renderTimeline = renderTimeline;
-window.updatePlayhead = updatePlayhead;

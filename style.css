@@ -14,45 +14,47 @@ body {
 
 #app {
   display: flex;
-  height: 50vh;
+  height: 55vh;
 }
 
 /* 🎛 SIDEBAR */
 #sidebar {
-  width: 220px;
+  width: 200px;
   background: #151824;
   padding: 10px;
 }
 
-#sidebar button {
-  width: 100%;
-  margin-bottom: 6px;
-  background: #2a2d36;
-  border: none;
-  color: white;
-  padding: 6px;
-}
-
-/* TIMELINE */
-#timelineWrap {
+/* 🎧 TRACK CONTAINER (VERTICAL SCROLL CORE) */
+#trackContainer {
   flex: 1;
-  position: relative;
+  overflow-y: auto;   /* 🔥 THIS IS THE IMPORTANT PART */
   background: #11131a;
-  overflow-x: auto;
-}
-
-#timeline {
-  position: relative;
   height: 100%;
-  min-width: 2000px; /* 🔥 IMPORTANT FOR SCROLL */
 }
 
+/* TIMELINE STACK (VERTICAL LAYERS) */
+#timeline {
+  display: flex;
+  flex-direction: column; /* 🔥 STACK TRACKS VERTICALLY */
+}
+
+/* TRACK ROWS */
 .track {
-  height: 100px;
+  height: 90px;
   border-bottom: 1px solid #333;
   position: relative;
+  min-height: 90px;
 }
 
+.trackLabel {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* NOTES */
 .note {
   position: absolute;
   height: 10px;
@@ -60,29 +62,16 @@ body {
   border-radius: 4px;
 }
 
-/* PLAYHEAD */
-#playhead {
-  position: absolute;
-  width: 2px;
-  top: 0;
-  bottom: 0;
-  background: red;
-  z-index: 999;
-}
-
-/* 🎹 SCROLLABLE PIANO ROLL */
+/* 🎹 PIANO ROLL */
 #pianoScroll {
   overflow-x: auto;
-  white-space: nowrap;
   background: #0f1117;
 }
 
 #piano {
   display: grid;
-  grid-template-columns: repeat(64, 40px); /* 🔥 LONG TIMELINE */
-  gap: 2px;
-  padding: 10px;
-  width: 3000px; /* forces scroll */
+  grid-template-columns: repeat(64, 40px);
+  width: 3000px;
 }
 
 .cell {

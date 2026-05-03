@@ -39,7 +39,6 @@ class DAWEngine {
         });
       });
 
-      updatePlayhead(this.step);
       this.step = (this.step + 1) % 64;
 
     }, stepTime * 1000);
@@ -64,14 +63,11 @@ class DAWEngine {
     osc.type =
       t === "drums" ? "square" :
       t === "bass" ? "sawtooth" :
-      t === "noise" ? "sawtooth" :
       t;
 
     osc.frequency.value =
       t === "drums"
         ? 60 + Math.random() * 120
-        : t === "bass"
-        ? 80 * Math.pow(2, n.pitch / 12)
         : 220 * Math.pow(2, n.pitch / 12);
 
     gain.gain.value = 0.2;
