@@ -1,44 +1,39 @@
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-const instruments = ["kick", "snare", "hihat", "clap", "openhat", "bass"];
+const instruments = ["kick", "snare", "hihat", "clap", "bass"];
 const steps = 16;
 
 let bpm = 120;
-let currentStep = 0;
-let isPlaying = false;
+let step = 0;
+let playing = false;
 let interval;
 
 let grid = {};
-let gains = {};
+let piano = [];
 let buffers = {};
+let gains = {};
 
-// ---------------- LOAD AUDIO ----------------
+// ---------------- LOAD ----------------
 async function load(name) {
-  const res = await fetch(`sounds/${name}.wav`);
-  const arr = await res.arrayBuffer();
-  return await audioCtx.decodeAudioData(arr);
+  const r = await fetch(`sounds/${name}.wav`);
+  const b = await r.arrayBuffer();
+  return await audioCtx.decodeAudioData(b);
 }
 
 // ---------------- INIT ----------------
 async function init() {
-  for (let inst of instruments) {
-    buffers[inst] = await load(inst);
+  for (let i of instruments) {
+    buffers[i] = await load(i);
 
-    gains[inst] = audioCtx.createGain();
-    gains[inst].gain.value = 1;
-    gains[inst].connect(audioCtx.destination);
+    gains[i] = audioCtx.createGain();
+    gains[i].gain.value = 1;
+    gains[i].connect(audioCtx.destination);
   }
 
   buildSequencer();
+  buildPiano();
+  buildTimeline();
   buildMixer();
-}
-
-// ---------------- PLAY SOUND ----------------
-function play(inst) {
-  const src = audioCtx.createBufferSource();
-  src.buffer = buffers[inst];
-  src.connect(gains[inst]);
-  src.start();
 }
 
 // ---------------- SEQUENCER ----------------
@@ -49,17 +44,10 @@ function buildSequencer() {
     grid[inst] = Array(steps).fill(false);
 
     const row = document.createElement("div");
-    row.className = "track";
-
-    const label = document.createElement("div");
-    label.className = "label";
-    label.textContent = inst;
-
-    row.appendChild(label);
 
     for (let i = 0; i < steps; i++) {
       const cell = document.createElement("div");
-      cell.className = "cell";
+      cell.className = "step";
 
       cell.onclick = () => {
         grid[inst][i] = !grid[inst][i];
@@ -73,16 +61,45 @@ function buildSequencer() {
   });
 }
 
+// ---------------- PIANO ROLL (BASS) ----------------
+function buildPiano() {
+  const pianoEl = document.getElementById("piano");
+
+  for (let i = 0; i < 12; i++) {
+    piano[i] = false;
+
+    const note = document.createElement("div");
+    note.className = "piano-note";
+
+    note.onclick = () => {
+      piano[i] = !piano[i];
+      note.classList.toggle("active");
+    };
+
+    pianoEl.appendChild(note);
+  }
+}
+
+// ---------------- TIMELINE ----------------
+function buildTimeline() {
+  const t = document.getElementById("timeline");
+
+  for (let i = 0; i < 80; i++) {
+    const b = document.createElement("div");
+    b.className = "block";
+
+    b.onclick = () => b.classList.toggle("active");
+
+    t.appendChild(b);
+  }
+}
+
 // ---------------- MIXER ----------------
 function buildMixer() {
-  const mixer = document.getElementById("mixer");
+  const m = document.getElementById("mixer");
 
-  instruments.forEach(inst => {
-    const ch = document.createElement("div");
-    ch.className = "mixer-channel";
-
-    const label = document.createElement("div");
-    label.textContent = inst;
+  instruments.forEach(i => {
+    const div = document.createElement("div");
 
     const slider = document.createElement("input");
     slider.type = "range";
@@ -92,71 +109,64 @@ function buildMixer() {
     slider.value = 1;
 
     slider.oninput = () => {
-      gains[inst].gain.value = slider.value;
+      gains[i].gain.value = slider.value;
     };
 
-    ch.appendChild(label);
-    ch.appendChild(slider);
-    mixer.appendChild(ch);
+    div.textContent = i;
+    div.appendChild(slider);
+    m.appendChild(div);
   });
+}
+
+// ---------------- PLAY ----------------
+function tick() {
+  instruments.forEach(inst => {
+    if (grid[inst][step]) {
+      const s = audioCtx.createBufferSource();
+      s.buffer = buffers[inst];
+      s.connect(gains[inst]);
+      s.start();
+    }
+  });
+
+  step = (step + 1) % steps;
 }
 
 // ---------------- LOOP ----------------
-function tick() {
-  instruments.forEach(inst => {
-    if (grid[inst][currentStep]) play(inst);
-  });
-
-  currentStep = (currentStep + 1) % steps;
-}
-
-function playLoop() {
-  if (isPlaying) return;
-  isPlaying = true;
+function play() {
+  if (playing) return;
+  playing = true;
   interval = setInterval(tick, (60000 / bpm) / 4);
 }
 
-function stopLoop() {
-  isPlaying = false;
+function stop() {
+  playing = false;
   clearInterval(interval);
-  currentStep = 0;
+  step = 0;
 }
 
-// ---------------- WAV EXPORT ----------------
+// ---------------- EXPORT (simple offline WAV) ----------------
 async function exportWAV() {
-  const duration = 8;
+  const offline = new OfflineAudioContext(2, audioCtx.sampleRate * 8, audioCtx.sampleRate);
 
-  const offline = new OfflineAudioContext(
-    2,
-    audioCtx.sampleRate * duration,
-    audioCtx.sampleRate
-  );
+  const g = {};
 
-  const offlineGains = {};
-  const offlineBuffers = {};
+  for (let i of instruments) {
+    const r = await fetch(`sounds/${i}.wav`);
+    const b = await r.arrayBuffer();
+    const buf = await offline.decodeAudioData(b);
 
-  for (let inst of instruments) {
-    const res = await fetch(`sounds/${inst}.wav`);
-    const arr = await res.arrayBuffer();
+    g[i] = offline.createGain();
+    g[i].connect(offline.destination);
 
-    offlineBuffers[inst] = await offline.decodeAudioData(arr);
-
-    offlineGains[inst] = offline.createGain();
-    offlineGains[inst].gain.value = gains[inst].gain.value;
-    offlineGains[inst].connect(offline.destination);
-  }
-
-  const stepTime = (60 / bpm) / 4;
-
-  for (let i = 0; i < steps; i++) {
-    instruments.forEach(inst => {
-      if (grid[inst][i]) {
+    for (let s = 0; s < steps; s++) {
+      if (grid[i][s]) {
         const src = offline.createBufferSource();
-        src.buffer = offlineBuffers[inst];
-        src.connect(offlineGains[inst]);
-        src.start(i * stepTime);
+        src.buffer = buf;
+        src.connect(g[i]);
+        src.start(s * 0.2);
       }
-    });
+    }
   }
 
   const rendered = await offline.startRendering();
@@ -166,67 +176,50 @@ async function exportWAV() {
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = "track.wav";
+  a.download = "project.wav";
   a.click();
 }
 
-// ---------------- WAV ENCODER ----------------
-function bufferToWav(buffer) {
-  const length = buffer.length * 2 + 44;
-  const arrayBuffer = new ArrayBuffer(length);
-  const view = new DataView(arrayBuffer);
+// WAV ENCODER (simple)
+function bufferToWav(buf) {
+  const length = buf.length * 2 + 44;
+  const ab = new ArrayBuffer(length);
+  const dv = new DataView(ab);
 
-  let offset = 0;
+  let o = 0;
 
-  const writeString = s => {
-    for (let i = 0; i < s.length; i++) {
-      view.setUint8(offset++, s.charCodeAt(i));
-    }
-  };
+  const w = s => [...s].forEach(c => dv.setUint8(o++, c.charCodeAt(0)));
 
-  const write16 = v => { view.setUint16(offset, v, true); offset += 2; };
-  const write32 = v => { view.setUint32(offset, v, true); offset += 4; };
+  w("RIFF");
+  dv.setUint32(o, length - 8, true); o += 4;
+  w("WAVEfmt ");
+  dv.setUint32(o, 16, true); o += 4;
+  dv.setUint16(o, 1, true); o += 2;
+  dv.setUint16(o, 1, true); o += 2;
+  dv.setUint32(o, buf.sampleRate, true); o += 4;
 
-  writeString("RIFF");
-  write32(length - 8);
-  writeString("WAVE");
+  const data = buf.getChannelData(0);
 
-  writeString("fmt ");
-  write32(16);
-  write16(1);
-  write16(1);
-  write32(buffer.sampleRate);
-  write32(buffer.sampleRate * 2);
-  write16(2);
-  write16(16);
-
-  writeString("data");
-  write32(length - offset - 4);
-
-  const data = buffer.getChannelData(0);
+  w("data");
+  dv.setUint32(o, length - o - 4, true); o += 4;
 
   for (let i = 0; i < data.length; i++) {
-    let sample = Math.max(-1, Math.min(1, data[i]));
-    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
-    offset += 2;
+    let v = Math.max(-1, Math.min(1, data[i]));
+    dv.setInt16(o, v < 0 ? v * 0x8000 : v * 0x7fff, true);
+    o += 2;
   }
 
-  return new Blob([arrayBuffer], { type: "audio/wav" });
+  return new Blob([ab], { type: "audio/wav" });
 }
 
 // ---------------- CONTROLS ----------------
-document.getElementById("play").onclick = playLoop;
-document.getElementById("stop").onclick = stopLoop;
+document.getElementById("play").onclick = play;
+document.getElementById("stop").onclick = stop;
 document.getElementById("export").onclick = exportWAV;
 
 document.getElementById("bpm").oninput = e => {
   bpm = e.target.value;
   document.getElementById("bpmVal").textContent = bpm;
-
-  if (isPlaying) {
-    stopLoop();
-    playLoop();
-  }
 };
 
 init();

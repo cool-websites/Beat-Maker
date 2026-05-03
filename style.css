@@ -1,14 +1,14 @@
 body {
   margin: 0;
-  background: #0f0f12;
+  font-family: Arial;
+  background: #0e0f12;
   color: #ddd;
-  font-family: Arial, sans-serif;
 }
 
 /* TOP BAR */
 .topbar {
   height: 50px;
-  background: #1a1a1f;
+  background: #1a1c22;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -17,108 +17,94 @@ body {
 }
 
 .logo {
+  color: #00d4ff;
   font-weight: bold;
-  margin-right: 20px;
-  color: #ff6a00;
+  margin-right: 10px;
 }
 
 button {
-  background: #ff6a00;
+  background: #00d4ff;
   border: none;
-  color: white;
   padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.bpm {
-  margin-left: auto;
-}
-
-/* MAIN LAYOUT */
-.workspace {
-  display: grid;
-  grid-template-columns: 180px 1fr 220px;
-  height: calc(100vh - 120px);
-}
-
-/* PANELS */
-.panel {
-  border-right: 1px solid #222;
-  padding: 10px;
-  overflow: auto;
-}
-
-.browser {
-  background: #15151a;
-}
-
-.rack {
-  background: #101015;
-}
-
-.mixer {
-  background: #15151a;
-}
-
-/* SAMPLE LIST */
-.sample {
-  padding: 6px;
-  margin: 4px 0;
-  background: #222;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* SEQUENCER */
-.track {
+/* ARRANGEMENT (BandLab style timeline) */
+.arrangement {
   display: flex;
-  align-items: center;
-  margin-bottom: 6px;
+  height: 220px;
+  border-bottom: 1px solid #333;
 }
 
-.label {
-  width: 70px;
+.track-list {
+  width: 100px;
+  background: #15171c;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 10px;
   font-size: 12px;
 }
 
-.cell {
-  width: 22px;
-  height: 22px;
-  margin: 2px;
+#timeline {
+  flex: 1;
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+  grid-template-columns: repeat(16, 1fr);
+  gap: 2px;
+  padding: 10px;
+}
+
+.block {
   background: #222;
   border-radius: 3px;
   cursor: pointer;
 }
 
-.cell.active {
-  background: #ff6a00;
+.block.active {
+  background: #00d4ff;
+}
+
+/* BOTTOM PANELS */
+.bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: calc(100vh - 270px);
+}
+
+.panel {
+  border-right: 1px solid #222;
+  padding: 10px;
+}
+
+/* SEQUENCER */
+.step {
+  width: 20px;
+  height: 20px;
+  background: #222;
+  margin: 2px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.step.active {
+  background: #00d4ff;
+}
+
+/* PIANO */
+.piano-note {
+  height: 20px;
+  margin: 2px;
+  background: #222;
+  cursor: pointer;
+}
+
+.piano-note.active {
+  background: #ff4d6d;
 }
 
 /* MIXER */
-#mixer {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.mixer-channel {
-  display: flex;
-  flex-direction: column;
-  font-size: 12px;
-}
-
-/* PLAYLIST */
-.playlist {
-  height: 70px;
-  background: #121218;
-  border-top: 1px solid #333;
-  padding: 5px;
-}
-
-.playlist-box {
-  background: #222;
-  padding: 10px;
-  border-radius: 4px;
-  width: 120px;
+#mixer div {
+  margin: 5px 0;
 }

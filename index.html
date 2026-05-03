@@ -2,57 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Web DAW Studio</title>
+  <title>Web DAW X</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- TOP TRANSPORT BAR -->
+<!-- TOP BAR -->
 <div class="topbar">
-  <div class="logo">🎛️ Web DAW</div>
+  <div class="logo">🎧 Web DAW X</div>
 
-  <button id="play">▶ Play</button>
-  <button id="stop">■ Stop</button>
-  <button id="export">⬇ Export WAV</button>
+  <button id="play">▶</button>
+  <button id="stop">■</button>
+  <button id="export">⬇ WAV</button>
 
   <div class="bpm">
-    BPM <input type="range" id="bpm" min="60" max="180" value="120">
+    BPM <input id="bpm" type="range" min="60" max="180" value="120">
     <span id="bpmVal">120</span>
   </div>
 </div>
 
-<!-- MAIN WORKSPACE -->
-<div class="workspace">
+<!-- MAIN GRID (BandLab-style horizontal tracks) -->
+<div class="arrangement">
 
-  <!-- LEFT BROWSER -->
-  <div class="panel browser">
-    <h3>📁 Samples</h3>
-    <div class="sample">kick</div>
-    <div class="sample">snare</div>
-    <div class="sample">hihat</div>
-    <div class="sample">clap</div>
-    <div class="sample">openhat</div>
-    <div class="sample">bass</div>
+  <!-- TRACK LIST -->
+  <div class="track-list">
+    <div>Kick</div>
+    <div>Snare</div>
+    <div>HiHat</div>
+    <div>Clap</div>
+    <div>Bass</div>
   </div>
 
-  <!-- CENTER CHANNEL RACK -->
-  <div class="panel rack">
-    <h3>🥁 Channel Rack</h3>
-    <div id="sequencer"></div>
-  </div>
-
-  <!-- RIGHT MIXER -->
-  <div class="panel mixer">
-    <h3>🎚️ Mixer</h3>
-    <div id="mixer"></div>
-  </div>
+  <!-- TIMELINE -->
+  <div id="timeline"></div>
 
 </div>
 
-<!-- BOTTOM PLAYLIST -->
-<div class="playlist">
-  <h3>🎧 Playlist (patterns)</h3>
-  <div class="playlist-box">Pattern 1</div>
+<!-- BOTTOM PANELS -->
+<div class="bottom">
+
+  <div class="panel">
+    <h3>🎛 Channel Rack</h3>
+    <div id="sequencer"></div>
+  </div>
+
+  <div class="panel">
+    <h3>🎹 Piano Roll (Bass)</h3>
+    <div id="piano"></div>
+  </div>
+
+  <div class="panel">
+    <h3>🎚 Mixer</h3>
+    <div id="mixer"></div>
+  </div>
+
 </div>
 
 <script src="script.js"></script>
