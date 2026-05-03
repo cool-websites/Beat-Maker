@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>DAW PRO v5</title>
+  <title>DAW PRO RESET</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,12 +12,11 @@
   <button onclick="DAW.addTrack()">+ Track</button>
   <button onclick="DAW.save()">💾 Save</button>
   <button onclick="DAW.load()">📂 Load</button>
-  <input type="file" id="importAudio">
 </div>
 
-<div id="app">
+<div id="timelineWrap">
+  <div id="playhead"></div>
   <div id="timeline"></div>
-  <div id="mixer"></div>
 </div>
 
 <h3>Piano Roll</h3>

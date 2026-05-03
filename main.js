@@ -1,6 +1,9 @@
 const DAW = window.DAW;
 
-// 🎹 PIANO ROLL
+// always start with one track
+DAW.addTrack();
+
+// 🎹 piano roll
 const piano = document.getElementById("piano");
 
 for (let y = 0; y < 8; y++) {
@@ -9,9 +12,7 @@ for (let y = 0; y < 8; y++) {
     const cell = document.createElement("div");
     cell.className = "cell";
 
-    cell.onmousedown = () => {
-      if (!DAW.tracks[0]) DAW.addTrack();
-
+    cell.onclick = () => {
       const note = {
         pitch: y * 2,
         time: x * 0.25,
@@ -19,7 +20,6 @@ for (let y = 0; y < 8; y++) {
       };
 
       DAW.tracks[0].notes.push(note);
-
       renderTimeline();
     };
 
@@ -27,7 +27,7 @@ for (let y = 0; y < 8; y++) {
   }
 }
 
-// 🎧 TIMELINE RENDER
+// 🎧 RENDER TIMELINE (FIXED CORE FUNCTION)
 function renderTimeline() {
   const tl = document.getElementById("timeline");
   tl.innerHTML = "";
@@ -46,18 +46,6 @@ function renderTimeline() {
       el.style.width = n.duration * 120 + "px";
       el.style.top = (80 - n.pitch * 2) + "px";
 
-      // 🖱 drag note
-      el.onmousedown = (e) => {
-        const offset = e.offsetX;
-
-        document.onmousemove = (e2) => {
-          n.time = (e2.pageX - offset) / 120;
-          el.style.left = n.time * 120 + "px";
-        };
-
-        document.onmouseup = () => document.onmousemove = null;
-      };
-
       row.appendChild(el);
     });
 
@@ -65,4 +53,10 @@ function renderTimeline() {
   });
 }
 
-DAW.renderTimeline = renderTimeline;
+// 🎯 PLAYHEAD
+function updatePlayhead(step) {
+  document.getElementById("playhead").style.left = (step * 40) + "px";
+}
+
+window.renderTimeline = renderTimeline;
+window.updatePlayhead = updatePlayhead;

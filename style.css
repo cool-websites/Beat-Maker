@@ -1,7 +1,7 @@
 body {
   margin: 0;
   background: #0b0c10;
-  color: #ddd;
+  color: white;
   font-family: Arial;
 }
 
@@ -12,20 +12,28 @@ body {
   background: #1a1c24;
 }
 
-#app {
-  display: flex;
-  height: 50vh;
+button {
+  background: #2a2d36;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  cursor: pointer;
 }
 
-#timeline {
-  flex: 3;
-  background: #11131a;
+#timelineWrap {
   position: relative;
+  height: 50vh;
+  background: #11131a;
   overflow-x: auto;
 }
 
+#timeline {
+  position: relative;
+  height: 100%;
+}
+
 .track {
-  height: 90px;
+  height: 100px;
   border-bottom: 1px solid #222;
   position: relative;
 }
@@ -35,20 +43,16 @@ body {
   height: 10px;
   background: #00ff99;
   border-radius: 4px;
-  cursor: pointer;
 }
 
-.clip {
+#playhead {
   position: absolute;
-  height: 50px;
-  background: #3a86ff;
-  border-radius: 6px;
-}
-
-#mixer {
-  flex: 1;
-  background: #181a22;
-  padding: 10px;
+  width: 2px;
+  top: 0;
+  bottom: 0;
+  background: red;
+  left: 0;
+  z-index: 10;
 }
 
 #piano {
@@ -61,8 +65,9 @@ body {
 .cell {
   height: 25px;
   background: #1f232c;
+  cursor: pointer;
 }
 
-.cell.active {
-  background: orange;
+.cell:hover {
+  background: #2c3340;
 }

@@ -1,11 +1,10 @@
 class DAWEngine {
   constructor() {
-    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.ctx = new AudioContext();
     this.tracks = [];
     this.isPlaying = false;
     this.step = 0;
     this.interval = null;
-    this.startTime = 0;
   }
 
   addTrack() {
@@ -15,15 +14,12 @@ class DAWEngine {
     this.tracks.push({
       gain,
       notes: [],
-      clips: [],
-      effects: { gain: 1 }
+      volume: 1
     });
 
-    this.renderMixer();
-    this.renderTimeline();
+    renderTimeline();
   }
 
-  // 🎧 AUDIO PLAYBACK ENGINE
   play() {
     if (this.isPlaying) return;
     this.isPlaying = true;
@@ -31,21 +27,17 @@ class DAWEngine {
     const bpm = 120;
     const stepTime = (60 / bpm) / 4;
 
-    this.startTime = this.ctx.currentTime;
-
     this.interval = setInterval(() => {
 
       this.tracks.forEach(track => {
-
         track.notes.forEach(n => {
           if (Math.floor(n.time * 4) === this.step) {
             this.playNote(n, track);
           }
         });
-
       });
 
-      this.updatePlayhead(this.step);
+      updatePlayhead(this.step);
 
       this.step = (this.step + 1) % 16;
 
@@ -67,16 +59,11 @@ class DAWEngine {
     osc.connect(gain);
     gain.connect(track.gain);
 
-    gain.gain.value = 0.2;
+    gain.gain.value = 0.2 * track.volume;
 
     const t = this.ctx.currentTime;
     osc.start(t);
     osc.stop(t + note.duration);
-  }
-
-  updatePlayhead(step) {
-    const ph = document.getElementById("playhead");
-    if (ph) ph.style.left = step * 40 + "px";
   }
 
   save() {
@@ -87,13 +74,10 @@ class DAWEngine {
   load() {
     const data = JSON.parse(localStorage.getItem("daw"));
     if (!data) return;
-    this.tracks = data;
-    this.renderTimeline();
-  }
 
-  // placeholder UI hooks
-  renderTimeline() {}
-  renderMixer() {}
+    this.tracks = data;
+    renderTimeline();
+  }
 }
 
 window.DAW = new DAWEngine();
