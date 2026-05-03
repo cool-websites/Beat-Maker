@@ -1,34 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DAW MAX</title>
-  <link rel="stylesheet" href="style.css"/>
+  <title>Web DAW Pro</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="topbar">
-  <button onclick="addTrack()">+ Track</button>
-  <button onclick="play()">▶ Play</button>
-  <button onclick="stop()">■ Stop</button>
-  <button onclick="exportWAV()">📤 Export</button>
-  <input type="file" id="file" accept="audio/*"/>
+<div id="toolbar">
+  <button id="playBtn">▶</button>
+  <button id="stopBtn">■</button>
+  <button id="addTrackBtn">+ Track</button>
+  <input type="file" id="importAudio">
 </div>
 
-<div id="workspace">
+<div id="app">
   <div id="timeline"></div>
   <div id="mixer"></div>
 </div>
 
-<h3>🥁 Drum Sequencer</h3>
-<div id="drumGrid"></div>
+<div id="bottom">
+  <div id="pianoRoll"></div>
+  <div id="drumRack"></div>
+</div>
 
-<h3>🎹 Piano Roll</h3>
-<div id="pianoGrid"></div>
-
-<h3>🎤 Record Vocals</h3>
-<button onclick="startRecording()">Start</button>
-<button onclick="stopRecording()">Stop</button>
-
-<script src="script.js"></script>
+<script type="module" src="main.js"></script>
 </body>
 </html>

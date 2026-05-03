@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  background: #0b0c10;
+  background: #0e0f14;
   color: white;
   font-family: Arial;
 }
@@ -9,49 +9,52 @@ body {
   display: flex;
   gap: 10px;
   padding: 10px;
-  background: #161826;
+  background: #1a1c26;
 }
 
-#workspace {
+#main {
   display: flex;
   height: 50vh;
 }
 
+/* TIMELINE */
 #timeline {
   flex: 3;
-  position: relative;
   background: #12131a;
-  overflow-x: scroll;
+  position: relative;
+  overflow-x: auto;
 }
 
 .track {
-  height: 90px;
+  height: 80px;
   border-bottom: 1px solid #222;
   position: relative;
 }
 
 .clip {
   position: absolute;
-  height: 70px;
-  background: #3b82f6;
-  border-radius: 6px;
-  overflow: hidden;
+  height: 12px;
+  background: #00ff99;
+  border-radius: 4px;
+  cursor: grab;
 }
 
+/* MIXER */
 #mixer {
   flex: 1;
-  background: #181a23;
+  background: #1b1d27;
   padding: 10px;
 }
 
-#drumGrid, #pianoGrid {
+/* GRID */
+#pianoGrid, #drumGrid {
   display: grid;
   grid-template-columns: repeat(16, 1fr);
   gap: 2px;
   margin: 10px;
 }
 
-#drumGrid div, #pianoGrid div {
+#pianoGrid div, #drumGrid div {
   height: 25px;
   background: #222;
   cursor: pointer;
