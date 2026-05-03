@@ -11,9 +11,12 @@ let interval;
 
 let grid = {};
 let piano = [];
-let timeline = [];
 let buffers = {};
 let gains = {};
+let clips = [];
+
+let playhead;
+let timelineEl = document.getElementById("timeline");
 
 // ---------------- LOAD AUDIO ----------------
 async function loadSound(name){
@@ -35,17 +38,18 @@ async function init(){
   buildTracks();
   buildSequencer();
   buildPiano();
-  buildTimeline();
   buildMixer();
+  buildTimeline();
+  createPlayhead();
 }
 
-// ---------------- TRACK LABELS ----------------
+// ---------------- TRACKS ----------------
 function buildTracks(){
-  const t = document.getElementById("trackNames");
-  instruments.forEach(i=>{
+  const el = document.getElementById("trackNames");
+  instruments.forEach(inst=>{
     const div=document.createElement("div");
-    div.textContent=i;
-    t.appendChild(div);
+    div.textContent = inst;
+    el.appendChild(div);
   });
 }
 
@@ -93,23 +97,6 @@ function buildPiano(){
   }
 }
 
-// ---------------- TIMELINE ----------------
-function buildTimeline(){
-  const el=document.getElementById("timeline");
-
-  for(let i=0;i<timelineSteps*instruments.length;i++){
-    const b=document.createElement("div");
-    b.className="block";
-
-    b.onclick=()=>{
-      timeline[i]=!timeline[i];
-      b.classList.toggle("active");
-    };
-
-    el.appendChild(b);
-  }
-}
-
 // ---------------- MIXER ----------------
 function buildMixer(){
   const el=document.getElementById("mixer");
@@ -130,7 +117,86 @@ function buildMixer(){
   });
 }
 
-// ---------------- PLAY ----------------
+// ---------------- TIMELINE + CLIPS ----------------
+function buildTimeline(){
+  timelineEl.innerHTML = "";
+
+  timelineEl.onclick = (e)=>{
+    if(e.target !== timelineEl) return;
+
+    const rect = timelineEl.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+
+    const col = Math.floor((x / rect.width) * timelineSteps);
+
+    createClip(col, 0);
+  };
+}
+
+function createClip(step, track){
+  const clip = document.createElement("div");
+  clip.className = "block active";
+  clip.style.position = "absolute";
+  clip.style.width = "80px";
+  clip.style.height = "30px";
+  clip.style.top = `${track * 40}px`;
+
+  clip.dataset.step = step;
+
+  updateClipPosition(clip);
+
+  // DRAGGING
+  let dragging = false;
+
+  clip.onmousedown = (e)=>{
+    dragging = true;
+  };
+
+  document.onmouseup = ()=> dragging = false;
+
+  document.onmousemove = (e)=>{
+    if(!dragging) return;
+
+    const rect = timelineEl.getBoundingClientRect();
+    let x = e.clientX - rect.left;
+
+    x = Math.max(0, Math.min(rect.width, x));
+
+    const newStep = Math.floor((x / rect.width) * timelineSteps);
+    clip.dataset.step = newStep;
+
+    updateClipPosition(clip);
+  };
+
+  timelineEl.appendChild(clip);
+  clips.push(clip);
+}
+
+function updateClipPosition(clip){
+  const step = parseInt(clip.dataset.step);
+  const percent = step / timelineSteps;
+  clip.style.left = (percent * 100) + "%";
+}
+
+// ---------------- PLAYHEAD ----------------
+function createPlayhead(){
+  playhead = document.createElement("div");
+  playhead.style.position = "absolute";
+  playhead.style.top = "0";
+  playhead.style.bottom = "0";
+  playhead.style.width = "2px";
+  playhead.style.background = "red";
+
+  timelineEl.style.position = "relative";
+  timelineEl.appendChild(playhead);
+}
+
+function updatePlayhead(){
+  const percent = currentStep / steps;
+  playhead.style.left = (percent * 100) + "%";
+}
+
+// ---------------- AUDIO ----------------
 function playSound(inst,time=0){
   const src=audioCtx.createBufferSource();
   src.buffer=buffers[inst];
@@ -138,14 +204,16 @@ function playSound(inst,time=0){
   src.start(time);
 }
 
+// ---------------- ENGINE ----------------
 function tick(){
+  // sequencer
   instruments.forEach(inst=>{
     if(grid[inst][currentStep]){
       playSound(inst);
     }
   });
 
-  // piano notes
+  // piano
   piano.forEach((row,y)=>{
     if(row[currentStep]){
       const osc=audioCtx.createOscillator();
@@ -156,6 +224,7 @@ function tick(){
     }
   });
 
+  updatePlayhead();
   currentStep=(currentStep+1)%steps;
 }
 
@@ -169,12 +238,13 @@ function stop(){
   playing=false;
   clearInterval(interval);
   currentStep=0;
+  updatePlayhead();
 }
 
 // ---------------- WAV EXPORT ----------------
 async function exportWAV(){
   const duration=8;
-  const offline=new OfflineAudioContext(2,audioCtx.sampleRate*duration,audioCtx.sampleRate);
+  const offline=new OfflineAudioContext(2,44100*duration,44100);
 
   for(let inst of instruments){
     const res=await fetch(`sounds/${inst}.wav`);
@@ -213,7 +283,7 @@ function bufferToWav(buffer){
   w("WAVEfmt "); dv.setUint32(o,16,true); o+=4;
   dv.setUint16(o,1,true); o+=2;
   dv.setUint16(o,1,true); o+=2;
-  dv.setUint32(o,buffer.sampleRate,true); o+=4;
+  dv.setUint32(o,44100,true); o+=4;
 
   w("data"); dv.setUint32(o,len-o-4,true); o+=4;
 
@@ -229,7 +299,7 @@ function bufferToWav(buffer){
 
 // ---------------- SAVE / LOAD ----------------
 document.getElementById("save").onclick=()=>{
-  const data={grid,piano,timeline,bpm};
+  const data={grid,piano,bpm};
   const blob=new Blob([JSON.stringify(data)]);
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
@@ -247,7 +317,6 @@ document.getElementById("load").onclick=()=>{
       const d=JSON.parse(reader.result);
       grid=d.grid;
       piano=d.piano;
-      timeline=d.timeline;
       bpm=d.bpm;
     };
     reader.readAsText(e.target.files[0]);
@@ -256,7 +325,7 @@ document.getElementById("load").onclick=()=>{
   input.click();
 };
 
-// ---------------- CONTROLS ----------------
+// ---------------- UI ----------------
 document.getElementById("play").onclick=play;
 document.getElementById("stop").onclick=stop;
 document.getElementById("export").onclick=exportWAV;
@@ -266,4 +335,5 @@ document.getElementById("bpm").oninput=e=>{
   document.getElementById("bpmVal").textContent=bpm;
 };
 
+// ---------------- START ----------------
 init();

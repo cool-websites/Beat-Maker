@@ -1,50 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Ultimate Beat Maker</title>
+  <title>Web DAW Pro</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- TOP BAR -->
 <div class="topbar">
-  <b>🎧 Ultimate Beat Maker</b>
+  <div class="logo">🎧 Web DAW</div>
 
-  <button id="play">▶</button>
-  <button id="stop">■</button>
-  <button id="export">⬇ WAV</button>
-  <button id="save">💾</button>
-  <button id="load">📂</button>
+  <div class="controls">
+    <button id="play">▶</button>
+    <button id="stop">■</button>
+    <button id="export">⬇</button>
+  </div>
 
-  BPM <input id="bpm" type="range" min="60" max="180" value="120">
-  <span id="bpmVal">120</span>
+  <div class="bpm">
+    BPM <input id="bpm" type="range" min="60" max="180" value="120">
+    <span id="bpmVal">120</span>
+  </div>
 </div>
 
-<div class="layout">
+<!-- MAIN -->
+<div class="main">
 
-  <!-- LEFT TRACKS -->
+  <!-- TRACK LIST -->
   <div class="tracks" id="trackNames"></div>
 
-  <!-- TIMELINE -->
-  <div class="timeline" id="timeline"></div>
+  <!-- TIMELINE (MAIN FOCUS) -->
+  <div class="timeline-container">
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <!-- MIXER -->
+  <div class="mixer" id="mixer"></div>
 
 </div>
 
+<!-- BOTTOM PANEL -->
 <div class="bottom">
 
-  <div>
-    <h3>Channel Rack</h3>
+  <div class="tabs">
+    <button onclick="showTab('rack')">Channel Rack</button>
+    <button onclick="showTab('piano')">Piano Roll</button>
+  </div>
+
+  <div id="rack" class="tab active">
     <div id="sequencer"></div>
   </div>
 
-  <div>
-    <h3>Piano Roll</h3>
+  <div id="pianoTab" class="tab">
     <div id="piano"></div>
-  </div>
-
-  <div>
-    <h3>Mixer</h3>
-    <div id="mixer"></div>
   </div>
 
 </div>
