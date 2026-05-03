@@ -1,22 +1,68 @@
-import { audioEngine } from "./engine/audioEngine.js";
-import { scheduler } from "./engine/scheduler.js";
-import { timelineUI } from "./ui/timeline.js";
-import { pianoRoll } from "./ui/pianoRoll.js";
-import { mixerUI } from "./ui/mixer.js";
-import { recorder } from "./features/recorder.js";
-import { importer } from "./features/importer.js";
+const DAW = window.DAW;
 
-document.getElementById("playBtn").onclick = () => scheduler.play();
-document.getElementById("stopBtn").onclick = () => scheduler.stop();
+// 🎹 PIANO ROLL
+const piano = document.getElementById("piano");
 
-document.getElementById("addTrackBtn").onclick = () => {
-  audioEngine.addTrack();
-  timelineUI.render();
-  mixerUI.render();
-};
+for (let y = 0; y < 8; y++) {
+  for (let x = 0; x < 16; x++) {
 
-document.getElementById("importAudio").onchange = importer.load;
+    const cell = document.createElement("div");
+    cell.className = "cell";
 
-pianoRoll.init();
-timelineUI.init();
-mixerUI.init();
+    cell.onmousedown = () => {
+      if (!DAW.tracks[0]) DAW.addTrack();
+
+      const note = {
+        pitch: y * 2,
+        time: x * 0.25,
+        duration: 0.25
+      };
+
+      DAW.tracks[0].notes.push(note);
+
+      renderTimeline();
+    };
+
+    piano.appendChild(cell);
+  }
+}
+
+// 🎧 TIMELINE RENDER
+function renderTimeline() {
+  const tl = document.getElementById("timeline");
+  tl.innerHTML = "";
+
+  DAW.tracks.forEach(track => {
+
+    const row = document.createElement("div");
+    row.className = "track";
+
+    track.notes.forEach(n => {
+
+      const el = document.createElement("div");
+      el.className = "note";
+
+      el.style.left = n.time * 120 + "px";
+      el.style.width = n.duration * 120 + "px";
+      el.style.top = (80 - n.pitch * 2) + "px";
+
+      // 🖱 drag note
+      el.onmousedown = (e) => {
+        const offset = e.offsetX;
+
+        document.onmousemove = (e2) => {
+          n.time = (e2.pageX - offset) / 120;
+          el.style.left = n.time * 120 + "px";
+        };
+
+        document.onmouseup = () => document.onmousemove = null;
+      };
+
+      row.appendChild(el);
+    });
+
+    tl.appendChild(row);
+  });
+}
+
+DAW.renderTimeline = renderTimeline;

@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Web DAW Pro</title>
+  <meta charset="UTF-8" />
+  <title>DAW PRO v5</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="toolbar">
-  <button id="playBtn">▶</button>
-  <button id="stopBtn">■</button>
-  <button id="addTrackBtn">+ Track</button>
+<div id="topbar">
+  <button onclick="DAW.play()">▶ Play</button>
+  <button onclick="DAW.stop()">■ Stop</button>
+  <button onclick="DAW.addTrack()">+ Track</button>
+  <button onclick="DAW.save()">💾 Save</button>
+  <button onclick="DAW.load()">📂 Load</button>
   <input type="file" id="importAudio">
 </div>
 
@@ -18,11 +21,11 @@
   <div id="mixer"></div>
 </div>
 
-<div id="bottom">
-  <div id="pianoRoll"></div>
-  <div id="drumRack"></div>
-</div>
+<h3>Piano Roll</h3>
+<div id="piano"></div>
 
-<script type="module" src="main.js"></script>
+<script src="engine.js"></script>
+<script src="main.js"></script>
+
 </body>
 </html>

@@ -1,13 +1,15 @@
 body {
   margin: 0;
-  background: #0d0f14;
-  color: white;
-  font-family: sans-serif;
+  background: #0b0c10;
+  color: #ddd;
+  font-family: Arial;
 }
 
-#toolbar {
+#topbar {
+  display: flex;
+  gap: 10px;
   padding: 10px;
-  background: #1a1d26;
+  background: #1a1c24;
 }
 
 #app {
@@ -17,46 +19,50 @@ body {
 
 #timeline {
   flex: 3;
-  background: #111;
+  background: #11131a;
+  position: relative;
   overflow-x: auto;
 }
 
 .track {
-  height: 80px;
+  height: 90px;
   border-bottom: 1px solid #222;
   position: relative;
 }
 
+.note {
+  position: absolute;
+  height: 10px;
+  background: #00ff99;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 .clip {
   position: absolute;
-  height: 20px;
-  background: #00ffcc;
+  height: 50px;
+  background: #3a86ff;
   border-radius: 6px;
-  cursor: grab;
 }
 
 #mixer {
   flex: 1;
-  background: #181b24;
+  background: #181a22;
+  padding: 10px;
 }
 
-#bottom {
-  display: flex;
-  height: 30vh;
-}
-
-#pianoRoll, #drumRack {
-  flex: 1;
+#piano {
   display: grid;
   grid-template-columns: repeat(16, 1fr);
   gap: 2px;
+  padding: 10px;
 }
 
 .cell {
-  background: #222;
   height: 25px;
+  background: #1f232c;
 }
 
-.active {
+.cell.active {
   background: orange;
 }
