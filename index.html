@@ -2,42 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Beat Maker DAW</title>
+  <title>DAW v2</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
 <div id="topbar">
-  <button onclick="addClip()">+ Add Clip</button>
+  <button onclick="addTrack()">+ Track</button>
   <button onclick="play()">▶ Play</button>
   <button onclick="stop()">■ Stop</button>
-  <button onclick="saveProject()">💾 Save</button>
-  <button onclick="loadProject()">📂 Load</button>
-  <input type="file" id="audioImport" accept="audio/*"/>
+  <button onclick="save()">💾 Save</button>
+  <button onclick="load()">📂 Load</button>
+  <input type="file" id="file" accept="audio/*"/>
 </div>
 
 <div id="app">
 
-  <!-- TRACK AREA -->
-  <div id="timeline-container">
+  <!-- TIMELINE -->
+  <div id="timelineWrap">
     <div id="timeline"></div>
     <div id="playhead"></div>
   </div>
 
-  <!-- PIANO ROLL -->
-  <div id="piano-roll">
-    <h3>Piano Roll (Grid View)</h3>
-    <div id="grid"></div>
+  <!-- MIXER -->
+  <div id="mixer">
+    <h3>Mixer</h3>
+    <div id="channels"></div>
   </div>
 
-  <!-- EFFECTS -->
-  <div id="effects">
-    <h3>Effects Rack</h3>
-    <label>Reverb <input type="range" min="0" max="1" step="0.01"/></label>
-    <label>Volume <input type="range" min="0" max="1" step="0.01"/></label>
-  </div>
+</div>
 
+<!-- PIANO + SEQUENCER -->
+<div id="bottom">
+  <div id="piano"></div>
+  <div id="sequencer"></div>
 </div>
 
 <script src="script.js"></script>

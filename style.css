@@ -1,53 +1,49 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f0f14;
+  background: #0e0f14;
   color: white;
+  font-family: Arial;
 }
 
 #topbar {
   display: flex;
   gap: 10px;
   padding: 10px;
-  background: #1a1a22;
-  position: sticky;
-  top: 0;
+  background: #1b1c25;
 }
 
 button {
-  background: #2d2d3a;
+  background: #2b2d3a;
+  border: 0;
   color: white;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
+  padding: 6px 10px;
 }
 
 #app {
   display: flex;
-  height: calc(100vh - 50px);
+  height: 55vh;
 }
 
 /* TIMELINE */
-#timeline-container {
+#timelineWrap {
   flex: 3;
   position: relative;
   overflow-x: auto;
-  background: #141420;
+  background: #151622;
 }
 
 #timeline {
-  position: relative;
+  width: 4000px;
   height: 300px;
-  width: 3000px;
-  border-bottom: 2px solid #333;
+  position: relative;
 }
 
 .clip {
   position: absolute;
   height: 60px;
-  background: #4c7dff;
+  background: #4a7dff;
   border-radius: 6px;
-  cursor: grab;
+  overflow: hidden;
 }
 
 /* PLAYHEAD */
@@ -59,35 +55,51 @@ button {
   left: 0;
 }
 
-/* PIANO ROLL */
-#piano-roll {
+/* MIXER */
+#mixer {
   flex: 1;
-  background: #1a1a22;
+  background: #1a1b26;
   padding: 10px;
-  overflow: auto;
 }
 
-#grid {
+.channel {
+  margin: 10px 0;
+}
+
+/* BOTTOM */
+#bottom {
+  display: flex;
+  height: 35vh;
+}
+
+#piano {
+  flex: 1;
+  background: #11121a;
   display: grid;
-  grid-template-columns: repeat(16, 20px);
-  grid-template-rows: repeat(12, 20px);
-  gap: 2px;
+  grid-template-columns: repeat(16, 1fr);
+  grid-template-rows: repeat(8, 1fr);
 }
 
-#grid div {
-  width: 20px;
-  height: 20px;
-  background: #2a2a35;
-  cursor: pointer;
+#piano div {
+  border: 1px solid #222;
 }
 
-#grid div.active {
+#piano .on {
   background: #00ff99;
 }
 
-/* EFFECTS */
-#effects {
+#sequencer {
   flex: 1;
-  background: #15151d;
-  padding: 10px;
+  background: #141522;
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
+
+#sequencer div {
+  border: 1px solid #333;
+}
+
+#sequencer .active {
+  background: orange;
 }
