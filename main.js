@@ -1,9 +1,9 @@
 const DAW = window.DAW;
 
-// always start with one track
+// 🎹 ALWAYS ensure track exists
 DAW.addTrack();
 
-// 🎹 piano roll
+// ---------------- PIANO ROLL ----------------
 const piano = document.getElementById("piano");
 
 for (let y = 0; y < 8; y++) {
@@ -13,6 +13,7 @@ for (let y = 0; y < 8; y++) {
     cell.className = "cell";
 
     cell.onclick = () => {
+
       const note = {
         pitch: y * 2,
         time: x * 0.25,
@@ -20,6 +21,7 @@ for (let y = 0; y < 8; y++) {
       };
 
       DAW.tracks[0].notes.push(note);
+
       renderTimeline();
     };
 
@@ -27,10 +29,12 @@ for (let y = 0; y < 8; y++) {
   }
 }
 
-// 🎧 RENDER TIMELINE (FIXED CORE FUNCTION)
+// ---------------- TIMELINE (FIXED ALWAYS REFRESH) ----------------
 function renderTimeline() {
   const tl = document.getElementById("timeline");
   tl.innerHTML = "";
+
+  if (!DAW.tracks.length) return;
 
   DAW.tracks.forEach(track => {
 
@@ -53,10 +57,11 @@ function renderTimeline() {
   });
 }
 
-// 🎯 PLAYHEAD
+// ---------------- PLAYHEAD ----------------
 function updatePlayhead(step) {
-  document.getElementById("playhead").style.left = (step * 40) + "px";
+  document.getElementById("playhead").style.left = step * 40 + "px";
 }
 
+// IMPORTANT: expose globally
 window.renderTimeline = renderTimeline;
 window.updatePlayhead = updatePlayhead;

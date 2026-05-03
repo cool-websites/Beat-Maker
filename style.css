@@ -5,21 +5,6 @@ body {
   font-family: Arial;
 }
 
-#topbar {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  background: #1a1c24;
-}
-
-button {
-  background: #2a2d36;
-  border: none;
-  color: white;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
 #timelineWrap {
   position: relative;
   height: 50vh;
@@ -30,6 +15,7 @@ button {
 #timeline {
   position: relative;
   height: 100%;
+  min-height: 200px;
 }
 
 .track {
@@ -66,8 +52,4 @@ button {
   height: 25px;
   background: #1f232c;
   cursor: pointer;
-}
-
-.cell:hover {
-  background: #2c3340;
 }

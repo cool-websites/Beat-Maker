@@ -8,16 +8,12 @@ class DAWEngine {
   }
 
   addTrack() {
-    const gain = this.ctx.createGain();
-    gain.connect(this.ctx.destination);
-
     this.tracks.push({
-      gain,
-      notes: [],
-      volume: 1
+      volume: 1,
+      notes: []
     });
 
-    renderTimeline();
+    this.refreshUI();
   }
 
   play() {
@@ -38,7 +34,6 @@ class DAWEngine {
       });
 
       updatePlayhead(this.step);
-
       this.step = (this.step + 1) % 16;
 
     }, stepTime * 1000);
@@ -46,8 +41,8 @@ class DAWEngine {
 
   stop() {
     clearInterval(this.interval);
-    this.step = 0;
     this.isPlaying = false;
+    this.step = 0;
   }
 
   playNote(note, track) {
@@ -56,26 +51,37 @@ class DAWEngine {
 
     osc.frequency.value = 220 * Math.pow(2, note.pitch / 12);
 
-    osc.connect(gain);
-    gain.connect(track.gain);
-
     gain.gain.value = 0.2 * track.volume;
 
-    const t = this.ctx.currentTime;
-    osc.start(t);
-    osc.stop(t + note.duration);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + note.duration);
   }
 
+  // 💾 SAFE SAVE (FIXED)
   save() {
-    localStorage.setItem("daw", JSON.stringify(this.tracks));
-    alert("Saved");
+    const clean = this.tracks.map(t => ({
+      volume: t.volume,
+      notes: t.notes.map(n => ({ ...n }))
+    }));
+
+    localStorage.setItem("daw_project", JSON.stringify(clean));
+    alert("Saved project");
   }
 
+  // 📂 SAFE LOAD (FIXED)
   load() {
-    const data = JSON.parse(localStorage.getItem("daw"));
+    const data = JSON.parse(localStorage.getItem("daw_project"));
     if (!data) return;
 
     this.tracks = data;
+    this.refreshUI();
+    alert("Loaded project");
+  }
+
+  refreshUI() {
     renderTimeline();
   }
 }
