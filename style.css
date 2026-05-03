@@ -1,0 +1,73 @@
+body {
+  background: #121212;
+  color: #eee;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+h1 {
+  margin: 10px;
+}
+
+.topbar {
+  margin: 20px;
+}
+
+button {
+  padding: 10px;
+  margin: 5px;
+  background: #ff6a00;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#sequencer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 20px;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+  background: #222;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cell.active {
+  background: #ff6a00;
+}
+
+.label {
+  width: 80px;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#mixer {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.mixer-channel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

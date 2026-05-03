@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini FL Studio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>🎛️ Mini FL Studio</h1>
+
+<div class="topbar">
+  <button id="play">▶</button>
+  <button id="stop">■</button>
+
+  <label>BPM
+    <input type="range" id="bpm" min="60" max="180" value="120">
+    <span id="bpmVal">120</span>
+  </label>
+</div>
+
+<div id="sequencer"></div>
+
+<h2>🎚️ Mixer</h2>
+<div id="mixer"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
