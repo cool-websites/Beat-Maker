@@ -5,25 +5,57 @@ body {
   font-family: Arial;
 }
 
-#timelineWrap {
-  position: relative;
+/* TOP BAR */
+#topbar {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #1a1c24;
+}
+
+/* INSTRUMENT PANEL */
+#instrumentPanel {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #151824;
+}
+
+#instrumentPanel button {
+  background: #2a2d36;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* WORKSPACE */
+#workspace {
+  display: flex;
   height: 50vh;
+}
+
+/* TIMELINE */
+#timelineWrap {
+  flex: 3;
+  position: relative;
   background: #11131a;
   overflow-x: auto;
+  border-right: 1px solid #222;
 }
 
 #timeline {
   position: relative;
-  height: 100%;
-  min-height: 200px;
+  min-height: 100%;
 }
 
 .track {
   height: 100px;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid #333;
   position: relative;
 }
 
+/* NOTES */
 .note {
   position: absolute;
   height: 10px;
@@ -31,16 +63,24 @@ body {
   border-radius: 4px;
 }
 
+/* PLAYHEAD */
 #playhead {
   position: absolute;
   width: 2px;
   top: 0;
   bottom: 0;
   background: red;
-  left: 0;
-  z-index: 10;
+  z-index: 999;
 }
 
+/* MIXER */
+#mixer {
+  flex: 1;
+  background: #181a22;
+  padding: 10px;
+}
+
+/* PIANO */
 #piano {
   display: grid;
   grid-template-columns: repeat(16, 1fr);
@@ -52,4 +92,8 @@ body {
   height: 25px;
   background: #1f232c;
   cursor: pointer;
+}
+
+.cell:hover {
+  background: #2c3340;
 }

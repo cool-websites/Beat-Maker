@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DAW v6 FIXED</title>
+  <title>DAW PRO v7</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div id="topbar">
   <button onclick="DAW.play()">▶ Play</button>
   <button onclick="DAW.stop()">■ Stop</button>
@@ -15,17 +14,29 @@
   <button onclick="DAW.load()">📂 Load</button>
 </div>
 
-<!-- TIMELINE (NOW PROPERLY WRAPPED + REQUIRED ELEMENTS) -->
-<div id="timelineWrap">
-  <div id="playhead"></div>
-  <div id="timeline"></div>
+<!-- 🎛 INSTRUMENT PANEL -->
+<div id="instrumentPanel">
+  <button onclick="setInstrument('sine')">🎹 Synth</button>
+  <button onclick="setInstrument('square')">📟 Square</button>
+  <button onclick="setInstrument('triangle')">🔺 Soft</button>
+  <button onclick="setInstrument('drums')">🥁 Drums</button>
 </div>
 
-<!-- PIANO ROLL -->
+<!-- WORKSPACE -->
+<div id="workspace">
+
+  <div id="timelineWrap">
+    <div id="playhead"></div>
+    <div id="timeline"></div>
+  </div>
+
+  <div id="mixer"></div>
+
+</div>
+
 <h3>Piano Roll</h3>
 <div id="piano"></div>
 
-<!-- IMPORTANT: scripts must load AFTER DOM -->
 <script src="engine.js"></script>
 <script src="main.js"></script>
 

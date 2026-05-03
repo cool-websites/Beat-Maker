@@ -1,9 +1,14 @@
 const DAW = window.DAW;
 
-// 🎹 ALWAYS ensure track exists
+// ensure at least one track exists
 DAW.addTrack();
 
-// ---------------- PIANO ROLL ----------------
+// 🎛 instrument switch
+window.setInstrument = function(type) {
+  DAW.setInstrument(type);
+};
+
+// 🎹 PIANO ROLL
 const piano = document.getElementById("piano");
 
 for (let y = 0; y < 8; y++) {
@@ -14,13 +19,11 @@ for (let y = 0; y < 8; y++) {
 
     cell.onclick = () => {
 
-      const note = {
+      DAW.tracks[0].notes.push({
         pitch: y * 2,
         time: x * 0.25,
         duration: 0.25
-      };
-
-      DAW.tracks[0].notes.push(note);
+      });
 
       renderTimeline();
     };
@@ -29,12 +32,10 @@ for (let y = 0; y < 8; y++) {
   }
 }
 
-// ---------------- TIMELINE (FIXED ALWAYS REFRESH) ----------------
+// 🎧 TIMELINE RENDER (REAL FIXED VERSION)
 function renderTimeline() {
   const tl = document.getElementById("timeline");
   tl.innerHTML = "";
-
-  if (!DAW.tracks.length) return;
 
   DAW.tracks.forEach(track => {
 
@@ -57,11 +58,10 @@ function renderTimeline() {
   });
 }
 
-// ---------------- PLAYHEAD ----------------
+// 🎯 PLAYHEAD
 function updatePlayhead(step) {
   document.getElementById("playhead").style.left = step * 40 + "px";
 }
 
-// IMPORTANT: expose globally
 window.renderTimeline = renderTimeline;
 window.updatePlayhead = updatePlayhead;

@@ -2,18 +2,28 @@ class DAWEngine {
   constructor() {
     this.ctx = new AudioContext();
     this.tracks = [];
-    this.isPlaying = false;
     this.step = 0;
     this.interval = null;
+    this.isPlaying = false;
+
+    this.instrument = "sine";
   }
 
   addTrack() {
+    const gain = this.ctx.createGain();
+    gain.connect(this.ctx.destination);
+
     this.tracks.push({
-      volume: 1,
-      notes: []
+      gain,
+      notes: [],
+      volume: 1
     });
 
-    this.refreshUI();
+    renderTimeline();
+  }
+
+  setInstrument(type) {
+    this.instrument = type;
   }
 
   play() {
@@ -34,6 +44,7 @@ class DAWEngine {
       });
 
       updatePlayhead(this.step);
+
       this.step = (this.step + 1) % 16;
 
     }, stepTime * 1000);
@@ -45,43 +56,41 @@ class DAWEngine {
     this.step = 0;
   }
 
-  playNote(note, track) {
+  playNote(n, track) {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    osc.frequency.value = 220 * Math.pow(2, note.pitch / 12);
+    const inst = this.instrument;
 
-    gain.gain.value = 0.2 * track.volume;
+    osc.type = inst === "drums" ? "square" : inst;
+
+    osc.frequency.value = inst === "drums"
+      ? 60 + Math.random() * 100
+      : 220 * Math.pow(2, n.pitch / 12);
+
+    gain.gain.value = inst === "drums" ? 0.5 : 0.2;
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(track.gain);
 
     osc.start();
-    osc.stop(this.ctx.currentTime + note.duration);
+    osc.stop(this.ctx.currentTime + n.duration);
   }
 
-  // 💾 SAFE SAVE (FIXED)
   save() {
     const clean = this.tracks.map(t => ({
       volume: t.volume,
-      notes: t.notes.map(n => ({ ...n }))
+      notes: t.notes
     }));
 
-    localStorage.setItem("daw_project", JSON.stringify(clean));
-    alert("Saved project");
+    localStorage.setItem("daw", JSON.stringify(clean));
   }
 
-  // 📂 SAFE LOAD (FIXED)
   load() {
-    const data = JSON.parse(localStorage.getItem("daw_project"));
+    const data = JSON.parse(localStorage.getItem("daw"));
     if (!data) return;
 
     this.tracks = data;
-    this.refreshUI();
-    alert("Loaded project");
-  }
-
-  refreshUI() {
     renderTimeline();
   }
 }
