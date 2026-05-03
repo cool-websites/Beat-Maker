@@ -7,7 +7,6 @@ class DAWEngine {
     this.isPlaying = false;
     this.recording = false;
     this.activeTrack = 0;
-    this.instrument = "sine";
   }
 
   addTrack(type) {
@@ -21,10 +20,6 @@ class DAWEngine {
     });
 
     renderTimeline();
-  }
-
-  setInstrument(type) {
-    this.instrument = type;
   }
 
   play() {
@@ -45,7 +40,7 @@ class DAWEngine {
       });
 
       updatePlayhead(this.step);
-      this.step = (this.step + 1) % 16;
+      this.step = (this.step + 1) % 64;
 
     }, stepTime * 1000);
   }
@@ -64,13 +59,20 @@ class DAWEngine {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    const type = track.type;
+    const t = track.type;
 
-    osc.type = type === "drums" ? "square" : type;
+    osc.type =
+      t === "drums" ? "square" :
+      t === "bass" ? "sawtooth" :
+      t === "noise" ? "sawtooth" :
+      t;
 
-    osc.frequency.value = type === "drums"
-      ? 60 + Math.random() * 120
-      : 220 * Math.pow(2, n.pitch / 12);
+    osc.frequency.value =
+      t === "drums"
+        ? 60 + Math.random() * 120
+        : t === "bass"
+        ? 80 * Math.pow(2, n.pitch / 12)
+        : 220 * Math.pow(2, n.pitch / 12);
 
     gain.gain.value = 0.2;
 
@@ -79,15 +81,6 @@ class DAWEngine {
 
     osc.start();
     osc.stop(this.ctx.currentTime + n.duration);
-  }
-
-  save() {
-    localStorage.setItem("daw", JSON.stringify(this.tracks));
-  }
-
-  load(data) {
-    this.tracks = data;
-    renderTimeline();
   }
 }
 

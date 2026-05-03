@@ -1,6 +1,6 @@
 const DAW = window.DAW;
 
-// 🎛 instrument → track creator
+// 🎛 ADD INSTRUMENT TRACK
 window.addInstrument = function(type) {
   DAW.addTrack(type);
 };
@@ -12,7 +12,7 @@ DAW.addTrack("sine");
 const piano = document.getElementById("piano");
 
 for (let y = 0; y < 8; y++) {
-  for (let x = 0; x < 16; x++) {
+  for (let x = 0; x < 64; x++) {
 
     const cell = document.createElement("div");
     cell.className = "cell";
@@ -32,7 +32,7 @@ for (let y = 0; y < 8; y++) {
   }
 }
 
-// 🎧 TIMELINE RENDER
+// 🎧 TIMELINE
 function renderTimeline() {
   const tl = document.getElementById("timeline");
   tl.innerHTML = "";
@@ -47,8 +47,8 @@ function renderTimeline() {
       const el = document.createElement("div");
       el.className = "note";
 
-      el.style.left = n.time * 120 + "px";
-      el.style.width = n.duration * 120 + "px";
+      el.style.left = n.time * 80 + "px";
+      el.style.width = n.duration * 80 + "px";
       el.style.top = "40px";
 
       row.appendChild(el);
@@ -80,7 +80,8 @@ window.exportProject = function() {
 document.getElementById("importFile").onchange = async (e) => {
   const file = e.target.files[0];
   const text = await file.text();
-  DAW.load(JSON.parse(text));
+  DAW.tracks = JSON.parse(text);
+  renderTimeline();
 };
 
 // expose
