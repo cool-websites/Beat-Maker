@@ -6,6 +6,7 @@
 </head>
 <body>
 
+<!-- TOP BAR -->
 <div id="topbar">
   <button onclick="DAW.play()">▶ Play</button>
   <button onclick="DAW.stop()">■ Stop</button>
@@ -14,14 +15,17 @@
   <button onclick="DAW.load()">📂 Load</button>
 </div>
 
+<!-- TIMELINE (NOW PROPERLY WRAPPED + REQUIRED ELEMENTS) -->
 <div id="timelineWrap">
   <div id="playhead"></div>
   <div id="timeline"></div>
 </div>
 
+<!-- PIANO ROLL -->
 <h3>Piano Roll</h3>
 <div id="piano"></div>
 
+<!-- IMPORTANT: scripts must load AFTER DOM -->
 <script src="engine.js"></script>
 <script src="main.js"></script>
 
