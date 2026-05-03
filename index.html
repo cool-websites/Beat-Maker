@@ -2,57 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Web DAW X</title>
+  <title>Ultimate Beat Maker</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
-  <div class="logo">🎧 Web DAW X</div>
+  <b>🎧 Ultimate Beat Maker</b>
 
   <button id="play">▶</button>
   <button id="stop">■</button>
   <button id="export">⬇ WAV</button>
+  <button id="save">💾</button>
+  <button id="load">📂</button>
 
-  <div class="bpm">
-    BPM <input id="bpm" type="range" min="60" max="180" value="120">
-    <span id="bpmVal">120</span>
-  </div>
+  BPM <input id="bpm" type="range" min="60" max="180" value="120">
+  <span id="bpmVal">120</span>
 </div>
 
-<!-- MAIN GRID (BandLab-style horizontal tracks) -->
-<div class="arrangement">
+<div class="layout">
 
-  <!-- TRACK LIST -->
-  <div class="track-list">
-    <div>Kick</div>
-    <div>Snare</div>
-    <div>HiHat</div>
-    <div>Clap</div>
-    <div>Bass</div>
-  </div>
+  <!-- LEFT TRACKS -->
+  <div class="tracks" id="trackNames"></div>
 
   <!-- TIMELINE -->
-  <div id="timeline"></div>
+  <div class="timeline" id="timeline"></div>
 
 </div>
 
-<!-- BOTTOM PANELS -->
 <div class="bottom">
 
-  <div class="panel">
-    <h3>🎛 Channel Rack</h3>
+  <div>
+    <h3>Channel Rack</h3>
     <div id="sequencer"></div>
   </div>
 
-  <div class="panel">
-    <h3>🎹 Piano Roll (Bass)</h3>
+  <div>
+    <h3>Piano Roll</h3>
     <div id="piano"></div>
   </div>
 
-  <div class="panel">
-    <h3>🎚 Mixer</h3>
+  <div>
+    <h3>Mixer</h3>
     <div id="mixer"></div>
   </div>
 
