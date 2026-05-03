@@ -2,28 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mini FL Studio Pro</title>
+  <title>Web DAW Studio</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>🎛️ Mini FL Studio Pro</h1>
-
+<!-- TOP TRANSPORT BAR -->
 <div class="topbar">
+  <div class="logo">🎛️ Web DAW</div>
+
   <button id="play">▶ Play</button>
   <button id="stop">■ Stop</button>
   <button id="export">⬇ Export WAV</button>
 
-  <label>BPM:
-    <input type="range" id="bpm" min="60" max="180" value="120">
+  <div class="bpm">
+    BPM <input type="range" id="bpm" min="60" max="180" value="120">
     <span id="bpmVal">120</span>
-  </label>
+  </div>
 </div>
 
-<div id="sequencer"></div>
+<!-- MAIN WORKSPACE -->
+<div class="workspace">
 
-<h2>🎚️ Mixer</h2>
-<div id="mixer"></div>
+  <!-- LEFT BROWSER -->
+  <div class="panel browser">
+    <h3>📁 Samples</h3>
+    <div class="sample">kick</div>
+    <div class="sample">snare</div>
+    <div class="sample">hihat</div>
+    <div class="sample">clap</div>
+    <div class="sample">openhat</div>
+    <div class="sample">bass</div>
+  </div>
+
+  <!-- CENTER CHANNEL RACK -->
+  <div class="panel rack">
+    <h3>🥁 Channel Rack</h3>
+    <div id="sequencer"></div>
+  </div>
+
+  <!-- RIGHT MIXER -->
+  <div class="panel mixer">
+    <h3>🎚️ Mixer</h3>
+    <div id="mixer"></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM PLAYLIST -->
+<div class="playlist">
+  <h3>🎧 Playlist (patterns)</h3>
+  <div class="playlist-box">Pattern 1</div>
+</div>
 
 <script src="script.js"></script>
 </body>
