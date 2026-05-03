@@ -1,27 +1,23 @@
 body {
   margin: 0;
-  background: #0e0f14;
+  background: #0d0f14;
   color: white;
-  font-family: Arial;
+  font-family: sans-serif;
 }
 
-#topbar {
-  display: flex;
-  gap: 10px;
+#toolbar {
   padding: 10px;
-  background: #1a1c26;
+  background: #1a1d26;
 }
 
-#main {
+#app {
   display: flex;
   height: 50vh;
 }
 
-/* TIMELINE */
 #timeline {
   flex: 3;
-  background: #12131a;
-  position: relative;
+  background: #111;
   overflow-x: auto;
 }
 
@@ -33,31 +29,32 @@ body {
 
 .clip {
   position: absolute;
-  height: 12px;
-  background: #00ff99;
-  border-radius: 4px;
+  height: 20px;
+  background: #00ffcc;
+  border-radius: 6px;
   cursor: grab;
 }
 
-/* MIXER */
 #mixer {
   flex: 1;
-  background: #1b1d27;
-  padding: 10px;
+  background: #181b24;
 }
 
-/* GRID */
-#pianoGrid, #drumGrid {
+#bottom {
+  display: flex;
+  height: 30vh;
+}
+
+#pianoRoll, #drumRack {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(16, 1fr);
   gap: 2px;
-  margin: 10px;
 }
 
-#pianoGrid div, #drumGrid div {
-  height: 25px;
+.cell {
   background: #222;
-  cursor: pointer;
+  height: 25px;
 }
 
 .active {
