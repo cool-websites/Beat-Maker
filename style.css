@@ -17,7 +17,7 @@ body {
   height: 55vh;
 }
 
-/* SIDEBAR */
+/* 🎛 SIDEBAR */
 #sidebar {
   width: 200px;
   background: #151824;
@@ -31,9 +31,10 @@ body {
   color: white;
   border: none;
   padding: 6px;
+  cursor: pointer;
 }
 
-/* TRACK VIEW (VERTICAL SCROLL) */
+/* 🎧 TIMELINE (VERTICAL TRACKS) */
 #timelineWrap {
   flex: 1;
   overflow-y: auto;
@@ -45,7 +46,6 @@ body {
   flex-direction: column;
 }
 
-/* TRACK ROW */
 .track {
   height: 90px;
   border-bottom: 1px solid #333;
@@ -60,7 +60,6 @@ body {
   opacity: 0.6;
 }
 
-/* NOTES */
 .note {
   position: absolute;
   height: 10px;
@@ -68,20 +67,29 @@ body {
   border-radius: 4px;
 }
 
-/* PIANO ROLL SCROLL */
+/* 🎹 PIANO ROLL */
 #pianoScroll {
   overflow-x: auto;
+  overflow-y: hidden;
   background: #0f1117;
+  white-space: nowrap;
 }
 
+/* GRID */
 #piano {
   display: grid;
   grid-template-columns: repeat(64, 40px);
-  width: 3000px;
+  width: 2600px;
 }
 
 .cell {
+  width: 40px;
   height: 25px;
-  background: #1f232c;
-  cursor: pointer;
+  border: 1px solid #1f232c;
+  background: #161a22;
+  box-sizing: border-box;
+}
+
+.cell:hover {
+  background: #2c3340;
 }
