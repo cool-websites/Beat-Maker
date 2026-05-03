@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DAW PRO v7</title>
+  <meta charset="UTF-8">
+  <title>DAW PRO v9</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -9,28 +10,27 @@
 <div id="topbar">
   <button onclick="DAW.play()">▶ Play</button>
   <button onclick="DAW.stop()">■ Stop</button>
-  <button onclick="DAW.addTrack()">+ Track</button>
-  <button onclick="DAW.save()">💾 Save</button>
-  <button onclick="DAW.load()">📂 Load</button>
+  <button onclick="DAW.toggleRecord()">⏺ Record</button>
+  <button onclick="exportProject()">💾 Export</button>
+  <input type="file" id="importFile">
 </div>
 
-<!-- 🎛 INSTRUMENT PANEL -->
-<div id="instrumentPanel">
-  <button onclick="setInstrument('sine')">🎹 Synth</button>
-  <button onclick="setInstrument('square')">📟 Square</button>
-  <button onclick="setInstrument('triangle')">🔺 Soft</button>
-  <button onclick="setInstrument('drums')">🥁 Drums</button>
-</div>
+<div id="app">
 
-<!-- WORKSPACE -->
-<div id="workspace">
+  <!-- 🎛 SIDEBAR -->
+  <div id="sidebar">
+    <h3>Instruments</h3>
+    <button onclick="addInstrument('sine')">🎹 Synth</button>
+    <button onclick="addInstrument('square')">📟 Square</button>
+    button onclick="addInstrument('triangle')">🔺 Soft</button>
+    <button onclick="addInstrument('drums')">🥁 Drums</button>
+  </div>
 
+  <!-- 🎧 TIMELINE -->
   <div id="timelineWrap">
     <div id="playhead"></div>
     <div id="timeline"></div>
   </div>
-
-  <div id="mixer"></div>
 
 </div>
 

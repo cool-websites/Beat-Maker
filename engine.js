@@ -5,18 +5,19 @@ class DAWEngine {
     this.step = 0;
     this.interval = null;
     this.isPlaying = false;
-
+    this.recording = false;
+    this.activeTrack = 0;
     this.instrument = "sine";
   }
 
-  addTrack() {
+  addTrack(type) {
     const gain = this.ctx.createGain();
     gain.connect(this.ctx.destination);
 
     this.tracks.push({
+      type,
       gain,
-      notes: [],
-      volume: 1
+      notes: []
     });
 
     renderTimeline();
@@ -44,7 +45,6 @@ class DAWEngine {
       });
 
       updatePlayhead(this.step);
-
       this.step = (this.step + 1) % 16;
 
     }, stepTime * 1000);
@@ -56,19 +56,23 @@ class DAWEngine {
     this.step = 0;
   }
 
+  toggleRecord() {
+    this.recording = !this.recording;
+  }
+
   playNote(n, track) {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    const inst = this.instrument;
+    const type = track.type;
 
-    osc.type = inst === "drums" ? "square" : inst;
+    osc.type = type === "drums" ? "square" : type;
 
-    osc.frequency.value = inst === "drums"
-      ? 60 + Math.random() * 100
+    osc.frequency.value = type === "drums"
+      ? 60 + Math.random() * 120
       : 220 * Math.pow(2, n.pitch / 12);
 
-    gain.gain.value = inst === "drums" ? 0.5 : 0.2;
+    gain.gain.value = 0.2;
 
     osc.connect(gain);
     gain.connect(track.gain);
@@ -78,18 +82,10 @@ class DAWEngine {
   }
 
   save() {
-    const clean = this.tracks.map(t => ({
-      volume: t.volume,
-      notes: t.notes
-    }));
-
-    localStorage.setItem("daw", JSON.stringify(clean));
+    localStorage.setItem("daw", JSON.stringify(this.tracks));
   }
 
-  load() {
-    const data = JSON.parse(localStorage.getItem("daw"));
-    if (!data) return;
-
+  load(data) {
     this.tracks = data;
     renderTimeline();
   }

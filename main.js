@@ -1,12 +1,12 @@
 const DAW = window.DAW;
 
-// ensure at least one track exists
-DAW.addTrack();
-
-// 🎛 instrument switch
-window.setInstrument = function(type) {
-  DAW.setInstrument(type);
+// 🎛 instrument → track creator
+window.addInstrument = function(type) {
+  DAW.addTrack(type);
 };
+
+// default track
+DAW.addTrack("sine");
 
 // 🎹 PIANO ROLL
 const piano = document.getElementById("piano");
@@ -19,7 +19,7 @@ for (let y = 0; y < 8; y++) {
 
     cell.onclick = () => {
 
-      DAW.tracks[0].notes.push({
+      DAW.tracks[DAW.activeTrack].notes.push({
         pitch: y * 2,
         time: x * 0.25,
         duration: 0.25
@@ -32,7 +32,7 @@ for (let y = 0; y < 8; y++) {
   }
 }
 
-// 🎧 TIMELINE RENDER (REAL FIXED VERSION)
+// 🎧 TIMELINE RENDER
 function renderTimeline() {
   const tl = document.getElementById("timeline");
   tl.innerHTML = "";
@@ -49,7 +49,7 @@ function renderTimeline() {
 
       el.style.left = n.time * 120 + "px";
       el.style.width = n.duration * 120 + "px";
-      el.style.top = (80 - n.pitch * 2) + "px";
+      el.style.top = "40px";
 
       row.appendChild(el);
     });
@@ -63,5 +63,26 @@ function updatePlayhead(step) {
   document.getElementById("playhead").style.left = step * 40 + "px";
 }
 
+// 💾 EXPORT
+window.exportProject = function() {
+  const blob = new Blob(
+    [JSON.stringify(DAW.tracks, null, 2)],
+    { type: "application/json" }
+  );
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "project.daw.json";
+  a.click();
+};
+
+// 📂 IMPORT
+document.getElementById("importFile").onchange = async (e) => {
+  const file = e.target.files[0];
+  const text = await file.text();
+  DAW.load(JSON.parse(text));
+};
+
+// expose
 window.renderTimeline = renderTimeline;
 window.updatePlayhead = updatePlayhead;
