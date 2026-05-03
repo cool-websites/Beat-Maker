@@ -6,7 +6,7 @@ window.addTrack = function(type) {
 
 DAW.addTrack("sine");
 
-/* PIANO */
+/* 🎹 PIANO */
 const piano = document.getElementById("piano");
 
 for (let y = 0; y < 8; y++) {
@@ -49,7 +49,6 @@ function renderTimeline() {
 
       note.style.left = n.time * 80 + "px";
       note.style.width = n.duration * 80 + "px";
-      note.style.top = "40px";
 
       row.appendChild(note);
     });
@@ -58,7 +57,7 @@ function renderTimeline() {
   });
 }
 
-window.renderTimeline = renderTimeline;
+renderTimeline();
 
 /* EXPORT PROJECT */
 window.exportProject = function () {
@@ -78,5 +77,3 @@ document.getElementById("importFile").onchange = async e => {
   DAW.tracks = JSON.parse(await e.target.files[0].text());
   renderTimeline();
 };
-
-renderTimeline();

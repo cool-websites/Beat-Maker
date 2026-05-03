@@ -4,7 +4,6 @@ class DAWEngine {
     this.tracks = [];
     this.step = 0;
     this.interval = null;
-    this.isPlaying = false;
     this.activeTrack = 0;
   }
 
@@ -22,8 +21,7 @@ class DAWEngine {
   }
 
   play() {
-    if (this.isPlaying) return;
-    this.isPlaying = true;
+    if (this.interval) return;
 
     const bpm = 120;
     const stepTime = (60 / bpm) / 4;
@@ -45,11 +43,9 @@ class DAWEngine {
 
   stop() {
     clearInterval(this.interval);
-    this.isPlaying = false;
+    this.interval = null;
     this.step = 0;
   }
-
-  toggleRecord() {}
 
   playNote(n, track) {
     const osc = this.ctx.createOscillator();
@@ -59,7 +55,7 @@ class DAWEngine {
 
     osc.frequency.value =
       track.type === "drums"
-        ? 100 + Math.random() * 100
+        ? 120 + Math.random() * 80
         : 220 * Math.pow(2, n.pitch / 12);
 
     gain.gain.value = 0.2;
@@ -71,16 +67,8 @@ class DAWEngine {
     osc.stop(this.ctx.currentTime + n.duration);
   }
 
-  // 🎧 REAL WAV EXPORT
   async exportWAV() {
-    const length = 10;
-    const sampleRate = 44100;
-
-    const offline = new OfflineAudioContext(
-      2,
-      sampleRate * length,
-      sampleRate
-    );
+    const offline = new OfflineAudioContext(2, 44100 * 10, 44100);
 
     this.tracks.forEach(track => {
       const gain = offline.createGain();
@@ -109,11 +97,11 @@ class DAWEngine {
     });
 
     const buffer = await offline.startRendering();
-    const wav = bufferToWav(buffer);
 
-    const url = URL.createObjectURL(wav);
+    const wav = bufferToWav(buffer);
     const a = document.createElement("a");
-    a.href = url;
+
+    a.href = URL.createObjectURL(wav);
     a.download = "song.wav";
     a.click();
   }
@@ -123,25 +111,24 @@ window.DAW = new DAWEngine();
 
 /* WAV ENCODER */
 function bufferToWav(buffer) {
-  const length = buffer.length * 2 + 44;
-  const arrayBuffer = new ArrayBuffer(length);
-  const view = new DataView(arrayBuffer);
+  const length = buffer.length * 4 + 44;
+  const view = new DataView(new ArrayBuffer(length));
 
-  function write(str, offset) {
-    for (let i = 0; i < str.length; i++) {
-      view.setUint8(offset + i, str.charCodeAt(i));
+  const write = (s, o) => {
+    for (let i = 0; i < s.length; i++) {
+      view.setUint8(o + i, s.charCodeAt(i));
     }
-  }
+  };
 
   write("RIFF", 0);
-  view.setUint32(4, 36 + buffer.length * 2, true);
+  view.setUint32(4, 36 + buffer.length * 4, true);
   write("WAVE", 8);
   write("fmt ", 12);
   view.setUint32(16, 16, true);
   view.setUint16(20, 1, true);
   view.setUint16(22, 2, true);
-  view.setUint32(24, buffer.sampleRate, true);
-  view.setUint32(28, buffer.sampleRate * 4, true);
+  view.setUint32(24, 44100, true);
+  view.setUint32(28, 44100 * 4, true);
   view.setUint16(32, 4, true);
   view.setUint16(34, 16, true);
   write("data", 36);
@@ -150,13 +137,11 @@ function bufferToWav(buffer) {
   let offset = 44;
 
   for (let i = 0; i < buffer.length; i++) {
-    for (let ch = 0; ch < 2; ch++) {
-      let sample = buffer.getChannelData(0)[i];
-      sample = Math.max(-1, Math.min(1, sample));
-      view.setInt16(offset, sample * 0x7fff, true);
-      offset += 2;
-    }
+    let sample = buffer.getChannelData(0)[i];
+    sample = Math.max(-1, Math.min(1, sample));
+    view.setInt16(offset, sample * 0x7fff, true);
+    offset += 2;
   }
 
-  return new Blob([arrayBuffer], { type: "audio/wav" });
+  return new Blob([view.buffer], { type: "audio/wav" });
 }
