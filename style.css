@@ -54,14 +54,12 @@ body {
   position: absolute;
   height: 10px;
   background: #00ff99;
-  border-radius: 4px;
 }
 
-/* PIANO ROLL (RESTORED GRID) */
+/* PIANO */
 #pianoScroll {
   overflow-x: auto;
   background: #0f1117;
-  white-space: nowrap;
 }
 
 #piano {
@@ -75,9 +73,4 @@ body {
   height: 25px;
   border: 1px solid #1f232c;
   background: #161a22;
-  box-sizing: border-box;
-}
-
-.cell:hover {
-  background: #2c3340;
 }

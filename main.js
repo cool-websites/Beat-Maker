@@ -1,14 +1,12 @@
 const DAW = window.DAW;
 
-// 🎛 ADD TRACK
 window.addTrack = function(type) {
   DAW.addTrack(type);
 };
 
-// default
 DAW.addTrack("sine");
 
-// 🎹 PIANO GRID
+/* PIANO */
 const piano = document.getElementById("piano");
 
 for (let y = 0; y < 8; y++) {
@@ -31,42 +29,41 @@ for (let y = 0; y < 8; y++) {
   }
 }
 
-// 🖱 SCROLL FIX
-document.getElementById("pianoScroll").addEventListener("wheel", (e) => {
+/* SCROLL */
+document.getElementById("pianoScroll").addEventListener("wheel", e => {
   e.preventDefault();
   e.currentTarget.scrollLeft += e.deltaY;
 }, { passive: false });
 
-// 🎧 TIMELINE
 function renderTimeline() {
   const tl = document.getElementById("timeline");
   tl.innerHTML = "";
 
   DAW.tracks.forEach(track => {
-
     const row = document.createElement("div");
     row.className = "track";
 
     track.notes.forEach(n => {
+      const note = document.createElement("div");
+      note.className = "note";
 
-      const el = document.createElement("div");
-      el.className = "note";
+      note.style.left = n.time * 80 + "px";
+      note.style.width = n.duration * 80 + "px";
+      note.style.top = "40px";
 
-      el.style.left = n.time * 80 + "px";
-      el.style.width = n.duration * 80 + "px";
-      el.style.top = "40px";
-
-      row.appendChild(el);
+      row.appendChild(note);
     });
 
     tl.appendChild(row);
   });
 }
 
-// 💾 EXPORT
+window.renderTimeline = renderTimeline;
+
+/* EXPORT PROJECT */
 window.exportProject = function () {
   const blob = new Blob(
-    [JSON.stringify(DAW.tracks, null, 2)],
+    [JSON.stringify(DAW.tracks)],
     { type: "application/json" }
   );
 
@@ -76,11 +73,10 @@ window.exportProject = function () {
   a.click();
 };
 
-// 📂 IMPORT
-document.getElementById("importFile").onchange = async (e) => {
-  const file = e.target.files[0];
-  DAW.tracks = JSON.parse(await file.text());
+/* IMPORT */
+document.getElementById("importFile").onchange = async e => {
+  DAW.tracks = JSON.parse(await e.target.files[0].text());
   renderTimeline();
 };
 
-window.renderTimeline = renderTimeline;
+renderTimeline();
