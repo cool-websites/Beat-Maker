@@ -1,232 +1,314 @@
+// ---------------- AUDIO ENGINE ----------------
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 const instruments = ["kick","snare","hihat","clap","bass"];
-const steps = 16;
-const timelineSteps = 64;
+const stepsPerPattern = 16;
+let timelineSteps = 256;
 
 let bpm = 120;
-let currentStep = 0;
+let currentTick = 0;
 let playing = false;
-let interval;
 
-let grid = {};
-let piano = [];
 let buffers = {};
-let gains = {};
+let channels = {};
 let clips = [];
 
-let playhead;
-let timelineEl = document.getElementById("timeline");
+let zoom = 1;
 
-// ---------------- LOAD AUDIO ----------------
+// ---------------- DOM ----------------
+const timeline = document.getElementById("timeline");
+
+// ---------------- LOAD SOUND ----------------
 async function loadSound(name){
   const res = await fetch(`sounds/${name}.wav`);
   const arr = await res.arrayBuffer();
   return await audioCtx.decodeAudioData(arr);
 }
 
+// ---------------- FX CHAIN ----------------
+function createFX(){
+  const input = audioCtx.createGain();
+
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 1200;
+
+  const delay = audioCtx.createDelay();
+  delay.delayTime.value = 0.2;
+
+  const feedback = audioCtx.createGain();
+  feedback.gain.value = 0.25;
+
+  delay.connect(feedback);
+  feedback.connect(delay);
+
+  input.connect(filter);
+  filter.connect(delay);
+  delay.connect(audioCtx.destination);
+
+  return input;
+}
+
 // ---------------- INIT ----------------
 async function init(){
   for(let inst of instruments){
-    buffers[inst] = await loadSound(inst);
+    try{
+      buffers[inst] = await loadSound(inst);
+    }catch{
+      buffers[inst] = null;
+    }
 
-    gains[inst] = audioCtx.createGain();
-    gains[inst].gain.value = 1;
-    gains[inst].connect(audioCtx.destination);
+    channels[inst] = createFX();
   }
 
-  buildTracks();
   buildSequencer();
-  buildPiano();
   buildMixer();
-  buildTimeline();
+  buildPiano();
   createPlayhead();
 }
 
-// ---------------- TRACKS ----------------
-function buildTracks(){
-  const el = document.getElementById("trackNames");
-  instruments.forEach(inst=>{
-    const div=document.createElement("div");
-    div.textContent = inst;
-    el.appendChild(div);
-  });
-}
-
 // ---------------- SEQUENCER ----------------
+let baseGrid = {};
+
 function buildSequencer(){
   const el=document.getElementById("sequencer");
+  el.innerHTML="";
 
   instruments.forEach(inst=>{
-    grid[inst]=Array(steps).fill(false);
+    baseGrid[inst]=Array(stepsPerPattern).fill(false);
 
-    for(let i=0;i<steps;i++){
-      const c=document.createElement("div");
-      c.className="step";
+    for(let i=0;i<stepsPerPattern;i++){
+      const cell=document.createElement("div");
+      cell.className="step";
 
-      c.onclick=()=>{
-        grid[inst][i]=!grid[inst][i];
-        c.classList.toggle("active");
+      cell.onclick=()=>{
+        baseGrid[inst][i]=!baseGrid[inst][i];
+        cell.classList.toggle("active");
       };
 
-      el.appendChild(c);
+      el.appendChild(cell);
     }
     el.appendChild(document.createElement("br"));
   });
-}
-
-// ---------------- PIANO ----------------
-function buildPiano(){
-  const el=document.getElementById("piano");
-
-  for(let y=0;y<8;y++){
-    piano[y]=Array(steps).fill(false);
-
-    for(let x=0;x<steps;x++){
-      const c=document.createElement("div");
-      c.className="piano-cell";
-
-      c.onclick=()=>{
-        piano[y][x]=!piano[y][x];
-        c.classList.toggle("active");
-      };
-
-      el.appendChild(c);
-    }
-    el.appendChild(document.createElement("br"));
-  }
 }
 
 // ---------------- MIXER ----------------
 function buildMixer(){
   const el=document.getElementById("mixer");
+  el.innerHTML="";
 
   instruments.forEach(inst=>{
-    const slider=document.createElement("input");
-    slider.type="range";
-    slider.min=0;
-    slider.max=1;
-    slider.step=0.01;
-    slider.value=1;
+    const label=document.createElement("div");
+    label.textContent=inst;
 
-    slider.oninput=()=>gains[inst].gain.value=slider.value;
+    const vol=document.createElement("input");
+    vol.type="range";
+    vol.min=0; vol.max=1; vol.step=0.01; vol.value=1;
 
-    el.appendChild(document.createTextNode(inst));
-    el.appendChild(slider);
-    el.appendChild(document.createElement("br"));
+    vol.oninput=()=>{
+      channels[inst].gain.value = vol.value;
+    };
+
+    el.appendChild(label);
+    el.appendChild(vol);
   });
 }
 
-// ---------------- TIMELINE + CLIPS ----------------
-function buildTimeline(){
-  timelineEl.innerHTML = "";
+// ---------------- PIANO ROLL ----------------
+const pianoNotes = 24;
+let pianoGrid = Array.from({length:pianoNotes},()=>Array(32).fill(false));
 
-  timelineEl.onclick = (e)=>{
-    if(e.target !== timelineEl) return;
+function buildPiano(){
+  const el=document.getElementById("piano");
+  el.innerHTML="";
 
-    const rect = timelineEl.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+  for(let r=0;r<pianoNotes;r++){
+    for(let c=0;c<32;c++){
+      const cell=document.createElement("div");
+      cell.className="piano-cell";
 
-    const col = Math.floor((x / rect.width) * timelineSteps);
+      cell.onclick=()=>{
+        pianoGrid[r][c]=!pianoGrid[r][c];
+        cell.classList.toggle("active");
+      };
 
-    createClip(col, 0);
-  };
+      el.appendChild(cell);
+    }
+    el.appendChild(document.createElement("br"));
+  }
 }
 
-function createClip(step, track){
-  const clip = document.createElement("div");
-  clip.className = "block active";
-  clip.style.position = "absolute";
-  clip.style.width = "80px";
-  clip.style.height = "30px";
-  clip.style.top = `${track * 40}px`;
+// ---------------- CLIPS ----------------
+function createClip(step){
+  const clip=document.createElement("div");
+  clip.className="block";
 
-  clip.dataset.step = step;
+  clip.dataset.start = step;
+  clip.dataset.length = stepsPerPattern;
 
-  updateClipPosition(clip);
+  clip.pattern = JSON.parse(JSON.stringify(baseGrid));
+  clip.enabled = Object.fromEntries(instruments.map(i=>[i,true]));
 
-  // DRAGGING
-  let dragging = false;
+  const left=document.createElement("div");
+  const right=document.createElement("div");
 
-  clip.onmousedown = (e)=>{
-    dragging = true;
-  };
+  left.className="resize-handle left";
+  right.className="resize-handle right";
 
-  document.onmouseup = ()=> dragging = false;
+  clip.appendChild(left);
+  clip.appendChild(right);
 
-  document.onmousemove = (e)=>{
-    if(!dragging) return;
+  timeline.appendChild(clip);
 
-    const rect = timelineEl.getBoundingClientRect();
-    let x = e.clientX - rect.left;
+  updateClip(clip);
+  enableDrag(clip);
+  enableResize(clip,left,right);
 
-    x = Math.max(0, Math.min(rect.width, x));
-
-    const newStep = Math.floor((x / rect.width) * timelineSteps);
-    clip.dataset.step = newStep;
-
-    updateClipPosition(clip);
-  };
-
-  timelineEl.appendChild(clip);
   clips.push(clip);
 }
 
-function updateClipPosition(clip){
-  const step = parseInt(clip.dataset.step);
-  const percent = step / timelineSteps;
-  clip.style.left = (percent * 100) + "%";
+// place clip
+timeline.onclick=e=>{
+  if(e.target!==timeline) return;
+
+  const rect=timeline.getBoundingClientRect();
+  const x=e.clientX-rect.left+timeline.scrollLeft;
+
+  createClip(Math.floor(x/(20*zoom)));
+};
+
+function updateClip(clip){
+  clip.style.left = clip.dataset.start*20*zoom+"px";
+  clip.style.width = clip.dataset.length*20*zoom+"px";
+  clip.style.position="absolute";
 }
 
-// ---------------- PLAYHEAD ----------------
-function createPlayhead(){
-  playhead = document.createElement("div");
-  playhead.style.position = "absolute";
-  playhead.style.top = "0";
-  playhead.style.bottom = "0";
-  playhead.style.width = "2px";
-  playhead.style.background = "red";
+// ---------------- DRAG ----------------
+function enableDrag(clip){
+  let dragging=false;
 
-  timelineEl.style.position = "relative";
-  timelineEl.appendChild(playhead);
+  clip.onmousedown=()=>dragging=true;
+  document.onmouseup=()=>dragging=false;
+
+  document.onmousemove=e=>{
+    if(!dragging) return;
+
+    const rect=timeline.getBoundingClientRect();
+    const x=e.clientX-rect.left+timeline.scrollLeft;
+
+    clip.dataset.start=Math.max(0,Math.floor(x/(20*zoom)));
+    updateClip(clip);
+  };
 }
 
-function updatePlayhead(){
-  const percent = currentStep / steps;
-  playhead.style.left = (percent * 100) + "%";
+// ---------------- RESIZE ----------------
+function enableResize(clip,l,r){
+  let left=false,right=false;
+
+  l.onmousedown=e=>{e.stopPropagation();left=true;}
+  r.onmousedown=e=>{e.stopPropagation();right=true;}
+
+  document.addEventListener("mouseup",()=>{left=false;right=false});
+
+  document.addEventListener("mousemove",e=>{
+    if(!left && !right) return;
+
+    const rect=timeline.getBoundingClientRect();
+    const x=e.clientX-rect.left+timeline.scrollLeft;
+    const step=Math.floor(x/(20*zoom));
+
+    let start=parseInt(clip.dataset.start);
+    let len=parseInt(clip.dataset.length);
+
+    if(right){
+      clip.dataset.length=Math.max(1,step-start);
+    }
+
+    if(left){
+      let diff=start-step;
+      if(start-diff>=0){
+        clip.dataset.start=step;
+        clip.dataset.length=len+diff;
+      }
+    }
+
+    updateClip(clip);
+  });
 }
 
-// ---------------- AUDIO ----------------
-function playSound(inst,time=0){
+// ---------------- PLAYBACK ----------------
+function playSound(inst){
+  if(!buffers[inst]) return;
+
   const src=audioCtx.createBufferSource();
   src.buffer=buffers[inst];
-  src.connect(gains[inst]);
-  src.start(time);
+  src.connect(channels[inst]);
+  src.start();
 }
 
-// ---------------- ENGINE ----------------
-function tick(){
-  // sequencer
-  instruments.forEach(inst=>{
-    if(grid[inst][currentStep]){
-      playSound(inst);
+function playStep(){
+  clips.forEach(clip=>{
+    const start=parseInt(clip.dataset.start);
+    const len=parseInt(clip.dataset.length);
+
+    const local=currentTick-start;
+
+    if(local>=0 && local<len){
+      const step=local%stepsPerPattern;
+
+      instruments.forEach(inst=>{
+        if(clip.enabled[inst] && clip.pattern[inst][step]){
+          playSound(inst);
+        }
+      });
     }
   });
+}
 
-  // piano
-  piano.forEach((row,y)=>{
-    if(row[currentStep]){
+// ---------------- PIANO PLAY ----------------
+function playPiano(){
+  pianoGrid.forEach((row,note)=>{
+    if(row[currentTick%32]){
       const osc=audioCtx.createOscillator();
-      osc.frequency.value=200+(y*50);
-      osc.connect(audioCtx.destination);
+      const gain=audioCtx.createGain();
+
+      osc.frequency.value = 220*Math.pow(2,note/12);
+      gain.gain.value=0.08;
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
       osc.start();
       osc.stop(audioCtx.currentTime+0.1);
     }
   });
-
-  updatePlayhead();
-  currentStep=(currentStep+1)%steps;
 }
+
+// ---------------- PLAYHEAD ----------------
+let playhead;
+
+function createPlayhead(){
+  playhead=document.createElement("div");
+  playhead.id="playhead";
+  timeline.appendChild(playhead);
+}
+
+function updatePlayhead(){
+  playhead.style.left=currentTick*20*zoom+"px";
+  timeline.scrollLeft=playhead.offsetLeft-200;
+}
+
+// ---------------- ENGINE ----------------
+function tick(){
+  playStep();
+  playPiano();
+  updatePlayhead();
+
+  currentTick++;
+  if(currentTick>=timelineSteps) currentTick=0;
+}
+
+let interval;
 
 function play(){
   if(playing) return;
@@ -237,103 +319,132 @@ function play(){
 function stop(){
   playing=false;
   clearInterval(interval);
-  currentStep=0;
-  updatePlayhead();
+  currentTick=0;
 }
 
-// ---------------- WAV EXPORT ----------------
+// ---------------- EXPORT WAV ----------------
 async function exportWAV(){
-  const duration=8;
+  const duration=10;
   const offline=new OfflineAudioContext(2,44100*duration,44100);
 
-  for(let inst of instruments){
-    const res=await fetch(`sounds/${inst}.wav`);
-    const arr=await res.arrayBuffer();
-    const buf=await offline.decodeAudioData(arr);
+  for(let clip of clips){
+    const start=parseInt(clip.dataset.start);
 
-    for(let i=0;i<steps;i++){
-      if(grid[inst][i]){
-        const src=offline.createBufferSource();
-        src.buffer=buf;
-        src.connect(offline.destination);
-        src.start(i*0.2);
+    for(let i=0;i<stepsPerPattern;i++){
+      const time=(start+i)*(60/bpm)/4;
+
+      for(let inst of instruments){
+        if(clip.pattern[inst][i] && buffers[inst]){
+          const src=offline.createBufferSource();
+          src.buffer=buffers[inst];
+          src.connect(offline.destination);
+          src.start(time);
+        }
       }
     }
   }
 
   const rendered=await offline.startRendering();
-  const wav=bufferToWav(rendered);
+  const blob=bufferToWav(rendered);
 
   const a=document.createElement("a");
-  a.href=URL.createObjectURL(wav);
-  a.download="beat.wav";
+  a.href=URL.createObjectURL(blob);
+  a.download="track.wav";
   a.click();
 }
 
-// ---------------- WAV ENCODER ----------------
 function bufferToWav(buffer){
-  const len=buffer.length*2+44;
-  const ab=new ArrayBuffer(len);
-  const dv=new DataView(ab);
+  const length = buffer.length * 2 + 44;
+  const view = new DataView(new ArrayBuffer(length));
 
-  let o=0;
-  const w=s=>[...s].forEach(c=>dv.setUint8(o++,c.charCodeAt(0)));
+  let offset = 0;
+  const write = s => [...s].forEach(c=>view.setUint8(offset++,c.charCodeAt(0)));
 
-  w("RIFF"); dv.setUint32(o,len-8,true); o+=4;
-  w("WAVEfmt "); dv.setUint32(o,16,true); o+=4;
-  dv.setUint16(o,1,true); o+=2;
-  dv.setUint16(o,1,true); o+=2;
-  dv.setUint32(o,44100,true); o+=4;
+  write("RIFF");
+  view.setUint32(offset,length-8,true); offset+=4;
+  write("WAVEfmt ");
+  view.setUint32(offset,16,true); offset+=4;
+  view.setUint16(offset,1,true); offset+=2;
+  view.setUint16(offset,1,true); offset+=2;
+  view.setUint32(offset,44100,true); offset+=4;
 
-  w("data"); dv.setUint32(o,len-o-4,true); o+=4;
+  write("data");
+  view.setUint32(offset,length-offset-4,true); offset+=4;
 
-  const data=buffer.getChannelData(0);
+  const data = buffer.getChannelData(0);
   for(let i=0;i<data.length;i++){
     let s=Math.max(-1,Math.min(1,data[i]));
-    dv.setInt16(o,s<0?s*0x8000:s*0x7fff,true);
-    o+=2;
+    view.setInt16(offset,s<0?s*0x8000:s*0x7fff,true);
+    offset+=2;
   }
 
-  return new Blob([ab],{type:"audio/wav"});
+  return new Blob([view],{type:"audio/wav"});
 }
 
 // ---------------- SAVE / LOAD ----------------
-document.getElementById("save").onclick=()=>{
-  const data={grid,piano,bpm};
-  const blob=new Blob([JSON.stringify(data)]);
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="project.json";
-  a.click();
-};
-
-document.getElementById("load").onclick=()=>{
-  const input=document.createElement("input");
-  input.type="file";
-
-  input.onchange=e=>{
-    const reader=new FileReader();
-    reader.onload=()=>{
-      const d=JSON.parse(reader.result);
-      grid=d.grid;
-      piano=d.piano;
-      bpm=d.bpm;
-    };
-    reader.readAsText(e.target.files[0]);
+function saveProject(){
+  const data={
+    clips:clips.map(c=>({
+      start:c.dataset.start,
+      length:c.dataset.length,
+      pattern:c.pattern
+    })),
+    piano:pianoGrid,
+    bpm
   };
 
-  input.click();
+  localStorage.setItem("dawProject",JSON.stringify(data));
+}
+
+function loadProject(){
+  const data=JSON.parse(localStorage.getItem("dawProject"));
+  if(!data) return;
+
+  bpm=data.bpm;
+  pianoGrid=data.piano;
+
+  data.clips.forEach(c=>{
+    createClip(parseInt(c.start));
+  });
+
+  buildPiano();
+}
+
+// ---------------- AUDIO IMPORT ----------------
+document.getElementById("fileInput").onchange=async e=>{
+  const file=e.target.files[0];
+  const arr=await file.arrayBuffer();
+  const buffer=await audioCtx.decodeAudioData(arr);
+
+  instruments.push(file.name);
+  buffers[file.name]=buffer;
+
+  channels[file.name]=createFX();
+  buildMixer();
 };
 
 // ---------------- UI ----------------
 document.getElementById("play").onclick=play;
 document.getElementById("stop").onclick=stop;
 document.getElementById("export").onclick=exportWAV;
+document.getElementById("save").onclick=saveProject;
+document.getElementById("load").onclick=loadProject;
 
 document.getElementById("bpm").oninput=e=>{
   bpm=e.target.value;
   document.getElementById("bpmVal").textContent=bpm;
 };
+
+// ---------------- ZOOM ----------------
+window.addEventListener("wheel",e=>{
+  if(e.ctrlKey){
+    e.preventDefault();
+    zoom+=e.deltaY*-0.001;
+    zoom=Math.min(Math.max(0.5,zoom),3);
+
+    clips.forEach(updateClip);
+  }
+},{passive:false});
 
 // ---------------- START ----------------
 init();

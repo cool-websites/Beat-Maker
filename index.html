@@ -13,10 +13,13 @@
   <div class="controls">
     <button id="play">▶</button>
     <button id="stop">■</button>
-    <button id="export">⬇</button>
+    <button id="export">⬇ WAV</button>
+    <button id="save">💾 Save</button>
+    <button id="load">📂 Load</button>
+    <input type="file" id="fileInput" hidden>
   </div>
 
-  <div class="bpm">
+  <div>
     BPM <input id="bpm" type="range" min="60" max="180" value="120">
     <span id="bpmVal">120</span>
   </div>
@@ -25,20 +28,17 @@
 <!-- MAIN -->
 <div class="main">
 
-  <!-- TRACK LIST -->
   <div class="tracks" id="trackNames"></div>
 
-  <!-- TIMELINE (MAIN FOCUS) -->
   <div class="timeline-container">
-    <div class="timeline" id="timeline"></div>
+    <div id="timeline"></div>
   </div>
 
-  <!-- MIXER -->
   <div class="mixer" id="mixer"></div>
 
 </div>
 
-<!-- BOTTOM PANEL -->
+<!-- BOTTOM -->
 <div class="bottom">
 
   <div class="tabs">
