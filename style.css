@@ -17,7 +17,6 @@ body {
   height: 55vh;
 }
 
-/* 🎛 SIDEBAR */
 #sidebar {
   width: 200px;
   background: #151824;
@@ -31,10 +30,9 @@ body {
   color: white;
   border: none;
   padding: 6px;
-  cursor: pointer;
 }
 
-/* 🎧 TIMELINE (VERTICAL TRACKS) */
+/* TIMELINE */
 #timelineWrap {
   flex: 1;
   overflow-y: auto;
@@ -52,14 +50,6 @@ body {
   position: relative;
 }
 
-.trackLabel {
-  position: absolute;
-  left: 6px;
-  top: 6px;
-  font-size: 11px;
-  opacity: 0.6;
-}
-
 .note {
   position: absolute;
   height: 10px;
@@ -67,15 +57,13 @@ body {
   border-radius: 4px;
 }
 
-/* 🎹 PIANO ROLL */
+/* PIANO ROLL (RESTORED GRID) */
 #pianoScroll {
   overflow-x: auto;
-  overflow-y: hidden;
   background: #0f1117;
   white-space: nowrap;
 }
 
-/* GRID */
 #piano {
   display: grid;
   grid-template-columns: repeat(64, 40px);
