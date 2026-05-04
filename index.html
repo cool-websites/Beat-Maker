@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>DAW PRO v21 GRID LIGHTUP</title>
+  <title>DAW PRO v22 MULTI GRID REAL</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,29 +13,24 @@
   <button onclick="DAW.exportWAV()">🎧 Export WAV</button>
 </div>
 
-<h3>Piano Grid</h3>
-<div id="pianoScroll">
-  <div id="piano"></div>
-</div>
-
-<h3>Tracks</h3>
-<div id="timelineWrap">
-  <div id="timeline"></div>
-</div>
-
 <h3>Instrument Selector</h3>
-<div id="gridButtons">
-  <button onclick="setGrid('sine')">🎹 Piano</button>
-  <button onclick="setGrid('triangle')">🔺 Triangle</button>
-  <button onclick="setGrid('square')">📟 Square</button>
-  <button onclick="setGrid('sawtooth')">🌊 Saw</button>
-  <button onclick="setGrid('bass')">🎸 Bass</button>
-  <button onclick="setGrid('drums')">🥁 Drums</button>
+<div id="instrumentButtons">
+  <button onclick="selectInstrument('piano')">🎹 Piano</button>
+  <button onclick="selectInstrument('triangle')">🔺 Triangle</button>
+  <button onclick="selectInstrument('square')">📟 Square</button>
+  <button onclick="selectInstrument('saw')">🌊 Saw</button>
+  <button onclick="selectInstrument('bass')">🎸 Bass</button>
+  <button onclick="selectInstrument('drums')">🥁 Drums</button>
 </div>
 
-<div id="instrumentWrap">
-  <div id="instrumentGrid"></div>
+<!-- 🎹 ACTIVE GRID (ONE PER INSTRUMENT VIEW) -->
+<h3 id="gridTitle">Piano Grid</h3>
+<div id="gridScroll">
+  <div id="activeGrid"></div>
 </div>
+
+<h3>Timeline</h3>
+<div id="timeline"></div>
 
 <script src="engine.js"></script>
 <script src="main.js"></script>

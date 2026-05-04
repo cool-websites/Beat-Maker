@@ -1,85 +1,51 @@
 class DAWEngine {
   constructor() {
     this.ctx = new AudioContext();
-    this.tracks = [];
-    this.step = 0;
-    this.interval = null;
-    this.currentGrid = "sine";
 
-    this.grids = {
-      sine: [],
-      triangle: [],
-      square: [],
-      sawtooth: [],
-      bass: [],
-      drums: []
+    // 🎛 each instrument has its OWN grid + sound file
+    this.instruments = {
+      piano: { notes: [], sound: "sounds/piano.wav" },
+      triangle: { notes: [], sound: "sounds/triangle.wav" },
+      square: { notes: [], sound: "sounds/square.wav" },
+      saw: { notes: [], sound: "sounds/saw.wav" },
+      bass: { notes: [], sound: "sounds/bass.wav" },
+      drums: { notes: [], sound: "sounds/drums.wav" }
     };
+
+    this.current = "piano";
+
+    this.buffers = {};
+    this.loadSounds();
   }
 
-  addTrack(type) {
-    const gain = this.ctx.createGain();
-    gain.connect(this.ctx.destination);
+  async loadSounds() {
+    const keys = Object.keys(this.instruments);
 
-    this.tracks.push({
-      type,
-      gain,
-      notes: this.grids[type]
-    });
-
-    renderTimeline();
+    for (let k of keys) {
+      const res = await fetch(this.instruments[k].sound);
+      const arr = await res.arrayBuffer();
+      this.buffers[k] = await this.ctx.decodeAudioData(arr);
+    }
   }
 
-  setGrid(type) {
-    this.currentGrid = type;
-    renderInstrumentGrid();
+  playBuffer(name) {
+    const src = this.ctx.createBufferSource();
+    src.buffer = this.buffers[name];
+    src.connect(this.ctx.destination);
+    src.start();
   }
 
   play() {
-    if (this.interval) return;
-
-    const bpm = 120;
-    const stepTime = (60 / bpm) / 4;
-
-    this.interval = setInterval(() => {
-
-      this.tracks.forEach(track => {
-        track.notes.forEach(n => {
-          if (Math.floor(n.time * 4) === this.step) {
-            this.playNote(n, track);
-          }
-        });
+    Object.values(this.instruments).forEach(inst => {
+      inst.notes.forEach(n => {
+        setTimeout(() => {
+          this.playBuffer(this.current);
+        }, n.time * 500);
       });
-
-      this.step = (this.step + 1) % 64;
-
-    }, stepTime * 1000);
+    });
   }
 
-  stop() {
-    clearInterval(this.interval);
-    this.interval = null;
-    this.step = 0;
-  }
-
-  playNote(n, track) {
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    osc.type = track.type === "drums" ? "square" : track.type;
-
-    osc.frequency.value =
-      track.type === "drums"
-        ? 120 + Math.random() * 80
-        : 220 * Math.pow(2, n.pitch / 12);
-
-    gain.gain.value = 0.2;
-
-    osc.connect(gain);
-    gain.connect(track.gain);
-
-    osc.start();
-    osc.stop(this.ctx.currentTime + n.duration);
-  }
+  stop() {}
 }
 
 window.DAW = new DAWEngine();

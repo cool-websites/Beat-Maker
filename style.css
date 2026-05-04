@@ -6,19 +6,32 @@ body {
 }
 
 #topbar {
-  display: flex;
-  gap: 10px;
   padding: 10px;
   background: #1a1c24;
 }
 
-/* 🎹 GRID */
-#pianoScroll {
+/* INSTRUMENT BUTTONS */
+#instrumentButtons {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #151824;
+}
+
+#instrumentButtons button {
+  padding: 8px;
+  background: #2a2d36;
+  color: white;
+  border: none;
+}
+
+/* GRID */
+#gridScroll {
   overflow-x: auto;
   background: #0f1117;
 }
 
-#piano {
+#activeGrid {
   display: grid;
   grid-template-columns: repeat(64, 40px);
   width: 2600px;
@@ -32,21 +45,20 @@ body {
   transition: 0.1s;
 }
 
-/* ✨ CLICKED NOTE (LIGHT UP) */
 .cell.active {
-  background: #00ff99 !important;
-  box-shadow: 0 0 8px #00ff99;
+  background: #00ff99;
+  box-shadow: 0 0 6px #00ff99;
 }
 
 /* TIMELINE */
-#timelineWrap {
-  max-height: 200px;
-  overflow-y: auto;
+#timeline {
+  margin-top: 10px;
   background: #11131a;
+  min-height: 200px;
 }
 
-.track {
-  height: 80px;
+.trackRow {
+  height: 70px;
   border-bottom: 1px solid #333;
   position: relative;
 }
@@ -55,43 +67,4 @@ body {
   position: absolute;
   height: 10px;
   background: #00ff99;
-}
-
-/* INSTRUMENT GRID */
-#gridButtons {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  background: #151824;
-}
-
-#gridButtons button {
-  padding: 8px;
-  background: #2a2d36;
-  color: white;
-  border: none;
-}
-
-#instrumentWrap {
-  overflow-x: auto;
-  background: #0f1117;
-}
-
-#instrumentGrid {
-  display: grid;
-  grid-template-columns: repeat(64, 40px);
-  width: 2600px;
-}
-
-.gridCell {
-  width: 40px;
-  height: 25px;
-  border: 1px solid #1f232c;
-  background: #1a1f2a;
-  transition: 0.1s;
-}
-
-.gridCell.active {
-  background: #ffcc00;
-  box-shadow: 0 0 6px #ffcc00;
 }

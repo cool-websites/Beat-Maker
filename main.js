@@ -1,64 +1,40 @@
 const DAW = window.DAW;
 
-window.setGrid = function(type) {
-  DAW.setGrid(type);
+window.selectInstrument = function(name) {
+  DAW.current = name;
+  document.getElementById("gridTitle").innerText =
+    name.charAt(0).toUpperCase() + name.slice(1) + " Grid";
+
+  renderGrid();
 };
 
-/* TRACKS */
-DAW.addTrack("sine");
-DAW.addTrack("triangle");
-DAW.addTrack("drums");
-
-/* 🎹 PIANO GRID */
-const piano = document.getElementById("piano");
-
-for (let y = 0; y < 8; y++) {
-  for (let x = 0; x < 64; x++) {
-
-    const cell = document.createElement("div");
-    cell.className = "cell";
-
-    cell.onclick = () => {
-
-      cell.classList.toggle("active");
-
-      const note = {
-        pitch: y * 2,
-        time: x * 0.25,
-        duration: 0.25
-      };
-
-      DAW.grids.sine.push(note);
-      renderTimeline();
-    };
-
-    piano.appendChild(cell);
-  }
-}
-
-/* 🎛 INSTRUMENT GRID */
-function renderInstrumentGrid() {
-  const grid = document.getElementById("instrumentGrid");
+/* 🎹 GRID SYSTEM */
+function renderGrid() {
+  const grid = document.getElementById("activeGrid");
   grid.innerHTML = "";
+
+  const inst = DAW.instruments[DAW.current];
 
   for (let y = 0; y < 6; y++) {
     for (let x = 0; x < 64; x++) {
 
       const cell = document.createElement("div");
-      cell.className = "gridCell";
+      cell.className = "cell";
+
+      // restore active state
+      if (inst.notes.find(n => n.x === x && n.y === y)) {
+        cell.classList.add("active");
+      }
 
       cell.onclick = () => {
 
         cell.classList.toggle("active");
 
-        const note = {
-          pitch: y * 2,
-          time: x * 0.25,
-          duration: 0.25
-        };
-
-        DAW.grids[DAW.currentGrid].push(note);
-        renderTimeline();
+        inst.notes.push({
+          x,
+          y,
+          time: x * 0.25
+        });
       };
 
       grid.appendChild(cell);
@@ -66,24 +42,23 @@ function renderInstrumentGrid() {
   }
 }
 
-renderInstrumentGrid();
+renderGrid();
 
 /* TIMELINE */
 function renderTimeline() {
   const tl = document.getElementById("timeline");
   tl.innerHTML = "";
 
-  DAW.tracks.forEach(track => {
-
+  Object.keys(DAW.instruments).forEach(key => {
     const row = document.createElement("div");
-    row.className = "track";
+    row.className = "trackRow";
 
-    track.notes.forEach(n => {
+    DAW.instruments[key].notes.forEach(n => {
       const note = document.createElement("div");
       note.className = "note";
 
       note.style.left = n.time * 80 + "px";
-      note.style.width = n.duration * 80 + "px";
+      note.style.width = "20px";
 
       row.appendChild(note);
     });
