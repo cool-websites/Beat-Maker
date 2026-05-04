@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>DAW PRO v19</title>
+  <title>DAW PRO v21 GRID LIGHTUP</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,31 +11,30 @@
   <button onclick="DAW.play()">▶ Play</button>
   <button onclick="DAW.stop()">■ Stop</button>
   <button onclick="DAW.exportWAV()">🎧 Export WAV</button>
-  <button onclick="exportProject()">💾 Export Project</button>
-  <input type="file" id="importFile">
 </div>
 
-<!-- 🎹 PIANO (TOP) -->
-<h3>Piano Roll</h3>
+<h3>Piano Grid</h3>
 <div id="pianoScroll">
   <div id="piano"></div>
 </div>
 
-<!-- 📜 TRACKS (MIDDLE) -->
 <h3>Tracks</h3>
 <div id="timelineWrap">
   <div id="timeline"></div>
 </div>
 
-<!-- 🎛 INSTRUMENTS (BOTTOM) -->
-<h3>Instruments</h3>
-<div id="instrumentRack">
-  <button onclick="addTrack('sine')">🎹 Synth</button>
-  <button onclick="addTrack('square')">📟 Square</button>
-  <button onclick="addTrack('triangle')">🔺 Triangle</button>
-  <button onclick="addTrack('sawtooth')">🌊 Saw</button>
-  <button onclick="addTrack('bass')">🎸 Bass</button>
-  <button onclick="addTrack('drums')">🥁 Drums</button>
+<h3>Instrument Selector</h3>
+<div id="gridButtons">
+  <button onclick="setGrid('sine')">🎹 Piano</button>
+  <button onclick="setGrid('triangle')">🔺 Triangle</button>
+  <button onclick="setGrid('square')">📟 Square</button>
+  <button onclick="setGrid('sawtooth')">🌊 Saw</button>
+  <button onclick="setGrid('bass')">🎸 Bass</button>
+  <button onclick="setGrid('drums')">🥁 Drums</button>
+</div>
+
+<div id="instrumentWrap">
+  <div id="instrumentGrid"></div>
 </div>
 
 <script src="engine.js"></script>

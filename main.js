@@ -1,12 +1,15 @@
 const DAW = window.DAW;
 
-window.addTrack = function(type) {
-  DAW.addTrack(type);
+window.setGrid = function(type) {
+  DAW.setGrid(type);
 };
 
+/* TRACKS */
 DAW.addTrack("sine");
+DAW.addTrack("triangle");
+DAW.addTrack("drums");
 
-/* 🎹 PIANO */
+/* 🎹 PIANO GRID */
 const piano = document.getElementById("piano");
 
 for (let y = 0; y < 8; y++) {
@@ -16,12 +19,16 @@ for (let y = 0; y < 8; y++) {
     cell.className = "cell";
 
     cell.onclick = () => {
-      DAW.tracks[DAW.activeTrack].notes.push({
+
+      cell.classList.toggle("active");
+
+      const note = {
         pitch: y * 2,
         time: x * 0.25,
         duration: 0.25
-      });
+      };
 
+      DAW.grids.sine.push(note);
       renderTimeline();
     };
 
@@ -29,17 +36,45 @@ for (let y = 0; y < 8; y++) {
   }
 }
 
-/* SCROLL */
-document.getElementById("pianoScroll").addEventListener("wheel", e => {
-  e.preventDefault();
-  e.currentTarget.scrollLeft += e.deltaY;
-}, { passive: false });
+/* 🎛 INSTRUMENT GRID */
+function renderInstrumentGrid() {
+  const grid = document.getElementById("instrumentGrid");
+  grid.innerHTML = "";
 
+  for (let y = 0; y < 6; y++) {
+    for (let x = 0; x < 64; x++) {
+
+      const cell = document.createElement("div");
+      cell.className = "gridCell";
+
+      cell.onclick = () => {
+
+        cell.classList.toggle("active");
+
+        const note = {
+          pitch: y * 2,
+          time: x * 0.25,
+          duration: 0.25
+        };
+
+        DAW.grids[DAW.currentGrid].push(note);
+        renderTimeline();
+      };
+
+      grid.appendChild(cell);
+    }
+  }
+}
+
+renderInstrumentGrid();
+
+/* TIMELINE */
 function renderTimeline() {
   const tl = document.getElementById("timeline");
   tl.innerHTML = "";
 
   DAW.tracks.forEach(track => {
+
     const row = document.createElement("div");
     row.className = "track";
 
@@ -58,22 +93,3 @@ function renderTimeline() {
 }
 
 renderTimeline();
-
-/* EXPORT PROJECT */
-window.exportProject = function () {
-  const blob = new Blob(
-    [JSON.stringify(DAW.tracks)],
-    { type: "application/json" }
-  );
-
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "project.daw.json";
-  a.click();
-};
-
-/* IMPORT */
-document.getElementById("importFile").onchange = async e => {
-  DAW.tracks = JSON.parse(await e.target.files[0].text());
-  renderTimeline();
-};
