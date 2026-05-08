@@ -1,51 +1,109 @@
 class DAWEngine {
+
   constructor() {
+
     this.ctx = new AudioContext();
 
-    // 🎛 each instrument has its OWN grid + sound file
-    this.instruments = {
-      piano: { notes: [], sound: "sounds/piano.wav" },
-      triangle: { notes: [], sound: "sounds/triangle.wav" },
-      square: { notes: [], sound: "sounds/square.wav" },
-      saw: { notes: [], sound: "sounds/saw.wav" },
-      bass: { notes: [], sound: "sounds/bass.wav" },
-      drums: { notes: [], sound: "sounds/drums.wav" }
+    // 🎛 SINGLE SOURCE OF TRUTH
+    this.song = {
+      tracks: []
     };
 
-    this.current = "piano";
+    // 🎹 instrument definitions
+    this.instruments = [
+      "piano",
+      "triangle",
+      "square",
+      "saw",
+      "bass",
+      "drums"
+    ];
 
+    // 🎧 audio buffers
     this.buffers = {};
+
+    this.currentTrack = 0;
+
+    this.setupTracks();
     this.loadSounds();
   }
 
-  async loadSounds() {
-    const keys = Object.keys(this.instruments);
+  setupTracks() {
 
-    for (let k of keys) {
-      const res = await fetch(this.instruments[k].sound);
-      const arr = await res.arrayBuffer();
-      this.buffers[k] = await this.ctx.decodeAudioData(arr);
-    }
+    this.song.tracks = this.instruments.map(name => ({
+      instrument: name,
+      notes: []
+    }));
+
   }
 
-  playBuffer(name) {
-    const src = this.ctx.createBufferSource();
-    src.buffer = this.buffers[name];
+  async loadSounds() {
+
+    for (const name of this.instruments) {
+
+      try {
+
+        const response =
+          await fetch(`sounds/${name}.wav`);
+
+        const arrayBuffer =
+          await response.arrayBuffer();
+
+        this.buffers[name] =
+          await this.ctx.decodeAudioData(arrayBuffer);
+
+      } catch (e) {
+
+        console.warn("Missing sound:", name);
+
+      }
+
+    }
+
+  }
+
+  playSample(name) {
+
+    const buffer = this.buffers[name];
+
+    if (!buffer) return;
+
+    const src =
+      this.ctx.createBufferSource();
+
+    src.buffer = buffer;
+
     src.connect(this.ctx.destination);
+
     src.start();
+
   }
 
   play() {
-    Object.values(this.instruments).forEach(inst => {
-      inst.notes.forEach(n => {
+
+    this.stop();
+
+    this.song.tracks.forEach(track => {
+
+      track.notes.forEach(note => {
+
         setTimeout(() => {
-          this.playBuffer(this.current);
-        }, n.time * 500);
+
+          this.playSample(track.instrument);
+
+        }, note.time * 500);
+
       });
+
     });
+
   }
 
-  stop() {}
+  stop() {
+
+    // future transport system
+  }
+
 }
 
 window.DAW = new DAWEngine();

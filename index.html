@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>DAW PRO v22 MULTI GRID REAL</title>
+  <title>DAW PRO v23 STABLE</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -10,26 +10,22 @@
 <div id="topbar">
   <button onclick="DAW.play()">▶ Play</button>
   <button onclick="DAW.stop()">■ Stop</button>
-  <button onclick="DAW.exportWAV()">🎧 Export WAV</button>
+  <button onclick="exportProject()">💾 Save</button>
+  <input type="file" id="loadProject">
 </div>
 
-<h3>Instrument Selector</h3>
-<div id="instrumentButtons">
-  <button onclick="selectInstrument('piano')">🎹 Piano</button>
-  <button onclick="selectInstrument('triangle')">🔺 Triangle</button>
-  <button onclick="selectInstrument('square')">📟 Square</button>
-  <button onclick="selectInstrument('saw')">🌊 Saw</button>
-  <button onclick="selectInstrument('bass')">🎸 Bass</button>
-  <button onclick="selectInstrument('drums')">🥁 Drums</button>
-</div>
+<!-- 🎛 INSTRUMENT SELECTOR -->
+<div id="instrumentBar"></div>
 
-<!-- 🎹 ACTIVE GRID (ONE PER INSTRUMENT VIEW) -->
+<!-- 🎹 GRID -->
 <h3 id="gridTitle">Piano Grid</h3>
+
 <div id="gridScroll">
-  <div id="activeGrid"></div>
+  <div id="grid"></div>
 </div>
 
-<h3>Timeline</h3>
+<!-- 📜 TIMELINE -->
+<h3>Tracks</h3>
 <div id="timeline"></div>
 
 <script src="engine.js"></script>

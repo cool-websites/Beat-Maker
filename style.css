@@ -6,43 +6,45 @@ body {
 }
 
 #topbar {
+  display: flex;
+  gap: 10px;
   padding: 10px;
   background: #1a1c24;
 }
 
-/* INSTRUMENT BUTTONS */
-#instrumentButtons {
+#instrumentBar {
   display: flex;
   gap: 10px;
   padding: 10px;
   background: #151824;
 }
 
-#instrumentButtons button {
-  padding: 8px;
+#instrumentBar button {
+  padding: 8px 14px;
   background: #2a2d36;
-  color: white;
   border: none;
+  color: white;
 }
 
 /* GRID */
+
 #gridScroll {
   overflow-x: auto;
-  background: #0f1117;
+  background: #10131a;
 }
 
-#activeGrid {
+#grid {
   display: grid;
   grid-template-columns: repeat(64, 40px);
-  width: 2600px;
+  width: 2560px;
 }
 
 .cell {
   width: 40px;
   height: 25px;
   border: 1px solid #1f232c;
-  background: #161a22;
-  transition: 0.1s;
+  background: #171b22;
+  transition: 0.08s;
 }
 
 .cell.active {
@@ -51,10 +53,10 @@ body {
 }
 
 /* TIMELINE */
+
 #timeline {
-  margin-top: 10px;
   background: #11131a;
-  min-height: 200px;
+  margin-top: 10px;
 }
 
 .trackRow {
@@ -63,8 +65,17 @@ body {
   position: relative;
 }
 
+.trackLabel {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
 .note {
   position: absolute;
-  height: 10px;
+  top: 30px;
+  height: 12px;
   background: #00ff99;
 }
